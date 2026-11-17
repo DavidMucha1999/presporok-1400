@@ -15,7 +15,7 @@ Nothing to install. Built for a desktop computer with keyboard and mouse (Chrome
 - **Family and dynasty** – a family seat that grows from a cottage to a castle, marriages, children and heirs, family tree and ancestors.
 - **Politics and advancement** – council elections, city offices, the Church, the royal court and titles from freeman to king.
 - **Living town** – illustrated scenes for every section, seasons, weather and a chronicle of events.
-- **3D town** – walk through the town with buildings placed exactly as on the map: enter workshops and family seats, shop at market stalls, talk to other families, take commissions on the square, day and night, weather and a bird's-eye view.
+- **3D town** – walk through the town with buildings placed exactly as on the map: enter workshops and family seats, shop at market stalls, talk to other families, take commissions on the square, townspeople who walk, look at you, greet you and chat with each other, day and night, weather and a bird's-eye view.
 
 ## Controls
 
@@ -54,6 +54,7 @@ nastroje/kontrola.js  ──  automated UI and 3D checks (index.html?kontrola)
 - **Built from the same data as the 2D map.** Streets, walls, gates, river and building plots are converted from map coordinates to world coordinates. Every building is chosen by what really stands on the plot: the craft and level of a workshop, the level of a family seat, public buildings. The 3D town therefore always matches the game.
 - **Image pipeline.** The scene renders into an HDR (half-float) target followed by a custom post-processing shader: ACES tone mapping, distance haze, bloom, a sun or moon disc, cloud shadows and wet ground in rain. Cloud shadows and puddles reconstruct world position from the depth buffer.
 - **Game connection.** Interaction points (enter a workshop, talk to a family head, buy at a stall, accept a commission) call the same actions as the 2D interface. Workshops under construction get scaffolding with workers, and idle ones get weeds and a boarded door, mirroring the 2D map.
+- **Procedural characters.** Townspeople are assembled in code from lathe and primitive shapes with folded clothing, a fabric texture and per-person height and build. Animation is procedural: the gait is derived from the measured speed so feet do not slide, the pelvis drops, sways and twists with each step, arms swing with a lag, and running adds a forward lean and bent elbows. Standing figures breathe, shift their weight, change arm poses, look around, turn their head to the player and nod in greeting. Arms or legs driven by other code (a guard's spear, a seated person) are detected automatically and left alone. Pedestrians steer around each other and the player, and distant figures are animated less often and drawn without shadows.
 - **Performance.** A quality switch (`Q`) and three optimizations:
   - Static meshes with identical material properties are merged into one geometry two seconds after the town opens (about 930 objects into about 100).
   - Small distant objects are moved to a hidden render layer, a simple level of detail.

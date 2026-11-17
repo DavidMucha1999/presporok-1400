@@ -15,7 +15,7 @@ Netreba nič inštalovať. Hra je určená pre počítač s klávesnicou a myšo
 - **Rod a rodina** – sídlo, ktoré rastie od chalupy po hrad, sobáše, deti a dedičia, rodokmeň a predkovia.
 - **Politika a postup** – voľby v rade, mestské úrady, cirkev, dvor a tituly od slobodníka po kráľa.
 - **Živé mesto** – ilustrované scény každej sekcie, ročné obdobia, počasie a udalosti v kronike.
-- **3D mesto** – prechádzka mestom s budovami presne podľa mapy: vstup do dielní a sídiel, trh so stánkami, rozhovory s hlavami rodov, zákazky na námestí, deň a noc, počasie a pohľad z výšky.
+- **3D mesto** – prechádzka mestom s budovami presne podľa mapy: vstup do dielní a sídiel, trh so stánkami, rozhovory s hlavami rodov, zákazky na námestí, mešťania, ktorí chodia, pozerajú sa na teba, zdravia a rozprávajú sa, deň a noc, počasie a pohľad z výšky.
 
 ## Ovládanie v skratke
 
@@ -37,6 +37,7 @@ nastroje/kontrola.js  ──  automatická kontrola rozhrania a 3D mesta (index.
 - **Moduly:** číslo v názve určuje poradie. `01-game.js` je jadro (stav hry, ekonomika, pravidlá, hlavné obrazovky, väčšina generovanej SVG grafiky). Ďalšie moduly pridávajú funkcie tak, že obalia existujúce funkcie, takže každá funkcia hry má vlastný súbor.
 - **Stav a rozhranie:** celá hra je jeden objekt stavu `S`, ktorý sa ukladá skomprimovaný (lz-string) do `localStorage`. `render()` vykreslí rozhranie zo stavu, tlačidlá s atribútom `data-a` volajú akcie v objekte `A` a tie zmenia stav a vykreslia znova.
 - **Grafika:** mapy miest, budovy, erby, portréty aj scény sa generujú v kóde ako SVG.
+- **Postavy:** skladajú sa v kóde zo sústružených tvarov s odevom v záhyboch, textúrou látky a rôznou výškou a postavou. Chôdza sa počíta zo skutočnej rýchlosti, aby nohy nekĺzali, telo pri kroku klesá a kolíše, ruky sa kývu s oneskorením. V stoji postavy dýchajú, prenášajú váhu, obzerajú sa, pozerajú na hráča a zdravia ho. Chodci sa obchádzajú a postavy v diaľke sa animujú zriedkavejšie.
 - **3D mesto:** stavia sa z tých istých údajov ako 2D mapa (ulice, hradby, pozemky a budovy na nich), takže vždy zodpovedá hre. Používa vlastné spracovanie obrazu (HDR, ACES, opar, bloom, tiene oblakov, mokrá zem z hĺbkovej mapy). Pre výkon zlučuje nehybné objekty (asi 930 do 100), skrýva drobnosti v diaľke a mení rozlíšenie podľa FPS. Vykresľovacích volaní je tak o 25–37 % menej.
 
 ## Technické údaje
