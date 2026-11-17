@@ -1,0 +1,40 @@
+/* Prešporok 1400 – ročné obdobia: farby, počasie a prechod medzi štvrťrokmi. */
+body{--seas:#8fbf6a;--seas-glow:#8fbf6a1c}
+body[data-season="0"]{--seas:#8fbf6a;--seas-glow:#9acb7a22}
+body[data-season="1"]{--seas:#e8c360;--seas-glow:#f2c85a24}
+body[data-season="2"]{--seas:#d9762f;--seas-glow:#c2571f22}
+body[data-season="3"]{--seas:#a9c4e0;--seas-glow:#9fb8d62a}
+body[data-season] .sheet,body[data-season] .mbox{box-shadow:inset 0 0 0 3px #efe6cf,inset 0 0 0 4px #8f621166,inset 0 0 54px var(--seas-glow),0 10px 26px #000a}
+body[data-season] .top{border-bottom-color:var(--seas)!important}
+body[data-season] .tab[aria-selected=true],body[data-season] .tab.on,body[data-season] .tab.active{box-shadow:0 -2px 0 var(--seas) inset}
+.sbar{position:absolute;left:0;right:0;bottom:-1px;height:14px;background-repeat:repeat-x;background-position:center bottom;pointer-events:none;opacity:.95}
+body[data-season="0"] .sbar{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='14' viewBox='0 0 72 14'%3E%3Cpath d='M0 12H72' stroke='%235e8a3c' stroke-width='1.2'/%3E%3Cg fill='%23f7d6e0' stroke='%23c46a86' stroke-width='.6'%3E%3Ccircle cx='12' cy='7' r='2.6'/%3E%3Ccircle cx='36' cy='6' r='2.6'/%3E%3Ccircle cx='60' cy='7' r='2.6'/%3E%3C/g%3E%3Cg fill='%23d6aa4c'%3E%3Ccircle cx='12' cy='7' r='.9'/%3E%3Ccircle cx='36' cy='6' r='.9'/%3E%3Ccircle cx='60' cy='7' r='.9'/%3E%3C/g%3E%3Cpath d='M24 12q2-5 6-6M48 12q2-5 6-6' stroke='%235e8a3c' fill='none' stroke-width='1.1'/%3E%3C/svg%3E")}
+body[data-season="1"] .sbar{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='14' viewBox='0 0 72 14'%3E%3Cpath d='M0 12H72' stroke='%23b99028' stroke-width='1.2'/%3E%3Cg stroke='%23d6aa4c' stroke-width='1.2' fill='%23e8c360'%3E%3Cpath d='M10 12V3M10 5l-2-2M10 5l2-2M10 8l-2-2M10 8l2-2'/%3E%3Cpath d='M34 12V3M34 5l-2-2M34 5l2-2M34 8l-2-2M34 8l2-2'/%3E%3Cpath d='M58 12V3M58 5l-2-2M58 5l2-2M58 8l-2-2M58 8l2-2'/%3E%3C/g%3E%3C/svg%3E")}
+body[data-season="2"] .sbar{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='14' viewBox='0 0 72 14'%3E%3Cpath d='M0 12H72' stroke='%238a4a1f' stroke-width='1.2'/%3E%3Cg stroke='%237a3010' stroke-width='.5'%3E%3Cpath d='M12 3q5 2 4 7-4 1-6-1-2-3 2-6z' fill='%23c2571f'/%3E%3Cpath d='M36 4q5 2 4 6-4 1-6-1-1-3 2-5z' fill='%23d89a2b'/%3E%3Cpath d='M58 3q5 2 4 7-4 1-6-1-2-3 2-6z' fill='%23a5312a'/%3E%3C/g%3E%3C/svg%3E")}
+body[data-season="3"] .sbar{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='14' viewBox='0 0 72 14'%3E%3Cpath d='M0 12H72' stroke='%239fb4c8' stroke-width='1.2'/%3E%3Cg stroke='%23e4eef8' stroke-width='1' stroke-linecap='round'%3E%3Cpath d='M12 3v8M8.500 5l7 4M8.500 9l7-4'/%3E%3Cpath d='M36 3v8M32.500 5l7 4M32.500 9l7-4'/%3E%3Cpath d='M60 3v8M56.500 5l7 4M56.500 9l7-4'/%3E%3C/g%3E%3C/svg%3E")}
+#sfx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+#wxov{position:fixed;inset:0;pointer-events:none;z-index:2;opacity:0;transition:opacity 1.2s}
+#wxov.rain{opacity:1;background:linear-gradient(180deg,#1a2a4a30,#0a142a22)}
+#wxov.fog{inset:-6%;opacity:1;background:radial-gradient(60% 40% at 20% 70%,#e8eef455,#0000),radial-gradient(55% 45% at 80% 30%,#e8eef44a,#0000);animation:wxfog 40s ease-in-out infinite alternate}
+#wxov.snow{opacity:1;background:linear-gradient(180deg,#dfe9f522,#ffffff10)}
+@keyframes wxfog{from{transform:translateX(-3%)}to{transform:translateX(3%)}}
+body[data-season="1"] #wxov.clear{opacity:1;background:radial-gradient(90% 60% at 85% -10%,#ffe8a844,#0000 70%)}
+body[data-season="2"] #wxov.clear{opacity:1;background:radial-gradient(90% 60% at 85% -10%,#ffb36a2e,#0000 70%)}
+body[data-season="0"] #wxov.clear{opacity:1;background:radial-gradient(90% 60% at 85% -10%,#e9ffd02a,#0000 70%)}
+body[data-gfx="0"] #sfx,body[data-gfx="0"] #wxov,body[data-gfx="0"] .sbar{display:none}
+/* prechod medzi štvrťrokmi */
+.sbn{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;background:#0a0604;cursor:pointer;animation:sbin .7s ease both;transition:opacity .6s}
+.sbn.out{opacity:0}
+@keyframes sbin{from{opacity:0}to{opacity:1}}
+.sbn-bg{position:absolute;inset:-6%;background-size:cover;background-position:center;filter:blur(18px) brightness(.4) saturate(1.1)}
+.sbn-in{position:relative;display:flex;align-items:center;gap:clamp(16px,4vw,44px);padding:20px max(16px,env(safe-area-inset-left,0px));max-width:880px;animation:sbrise 1s ease both}
+@keyframes sbrise{from{transform:translateY(14px) scale(.98)}to{transform:none}}
+.sbn-pic{flex:none;padding:8px;background:linear-gradient(135deg,#e8c360,#8f6211 60%,#d6aa4c);border-radius:3px;box-shadow:0 18px 44px #000c}
+.sbn-pic img{display:block;height:min(58vh,430px);max-width:40vw;object-fit:cover;border:2px solid #2a1a0e}
+.sbn-tx{color:#f4ead0;min-width:0}
+.sbn-k{margin:0 0 6px;font:.95rem var(--f-sc);letter-spacing:.28em;color:var(--seas);text-transform:lowercase}
+.sbn h2{margin:0;font:500 clamp(2.3rem,7vw,4.2rem)/1.05 var(--f-disp);color:#f2d78d;text-shadow:0 3px 0 #0a0603}
+.sbn-l{margin:14px 0 6px;font:italic 1.2rem var(--f-body);color:#e6dcc0;max-width:30ch}
+.sbn-w{margin:0;font:.95rem var(--f-sc);letter-spacing:.16em;color:#bfb08a}
+
+@media (prefers-reduced-motion:reduce){.sbn,.sbn-in,#wxov.fog{animation:none}}

@@ -1,0 +1,16 @@
+/* Prešporok 1400 – listiny: zvitkové tyče, pečať s erbom, datovanie. */
+.rod{flex:none;position:relative;height:16px;margin:0 -12px;border-radius:8px;z-index:2;
+  background:linear-gradient(#b27c40 0%,#7a4d22 42%,#4a2c12 100%);box-shadow:0 4px 8px #000a,inset 0 1px #ecc686aa}
+.rod::before,.rod::after{content:"";position:absolute;top:-3px;width:22px;height:22px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#f0d28a,#a8791f 55%,#4a2c12);box-shadow:0 2px 4px #000a}
+.rod::before{left:-9px}.rod::after{right:-9px}
+.rod-t{margin-bottom:-1px}.rod-b{margin-top:-1px}
+.mwrap .seal{display:grid;place-items:center;z-index:5;top:2px}
+.mwrap{padding-top:34px}
+.mwrap .seal::after{content:none!important}
+.mwrap .seal svg{filter:drop-shadow(0 1px 1px #0008)}
+.datel{margin:16px 0 2px;padding-top:12px;text-align:center;font:italic .95rem var(--f-body);color:#7a1f18;
+  background:linear-gradient(90deg,#0000,#a07a2a99,#0000) top/70% 1px no-repeat}
+.datel::first-letter{all:unset}
+svg.ci{color:#4a2f18;filter:drop-shadow(.6px .6px 0 #d6aa4c88)}
+

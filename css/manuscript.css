@@ -1,0 +1,21 @@
+/* Prešporok 1400 – kronika a listiny ako rukopis. Autor a vývojár: Dávid Mucha. */
+/* záznamy v kronike: červené rubrikované dátumy, zdobené iniciálky a ozdobný oddeľovač */
+.log .e{display:grid;grid-template-columns:minmax(64px,92px) minmax(0,1fr);gap:2px 16px;padding:10px 0 20px;border:0;position:relative}
+.log .e::after{content:"";position:absolute;left:50%;bottom:4px;width:120px;height:12px;transform:translateX(-50%);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='12' viewBox='0 0 120 12'%3E%3Cpath d='M4 6H48M72 6H116' stroke='%23a07a2a' stroke-width='.8' opacity='.7'/%3E%3Cpath d='M60 1l4 5-4 5-4-5z' fill='%23a5312a' stroke='%238f6211' stroke-width='.8'/%3E%3Ccircle cx='51' cy='6' r='1.4' fill='%238f6211'/%3E%3Ccircle cx='69' cy='6' r='1.4' fill='%238f6211'/%3E%3C/svg%3E") center/contain no-repeat}
+.log .e:last-child::after{display:none}
+.log .e>.lbl{color:#9c2a20;font-family:var(--f-sc);font-variant:small-caps;letter-spacing:.08em;font-size:.95rem;padding-top:3px}
+.log .e>span:last-child{font-family:var(--f-body);line-height:1.55;font-size:1.02rem}
+.log .e>span:last-child::first-letter{font-family:var(--f-disp);font-size:1.75em;line-height:.8;color:#9c2a20;text-shadow:1px 1px 0 #d6aa4c88}
+/* zošit roka: linajkový list s červenou hlavičkou */
+.zosit{background:repeating-linear-gradient(180deg,#0000 0 1.62rem,#8a6a2a26 1.62rem calc(1.62rem + 1px))}
+.zosit .mschron{font-family:var(--f-disp);font-size:1.7rem;color:#9c2a20;text-shadow:1px 1px 0 #d6aa4c66;border-bottom:1px solid #a07a2a88;padding-bottom:2px;margin-bottom:8px}
+.zosit>p:not(.lbl):not(.mschron)::first-letter{font-family:var(--f-disp);font-size:2.1em;line-height:.8;float:left;margin:4px 6px 0 0;color:#fbf3dc;background:linear-gradient(160deg,#c4453a,#7a1f18);padding:.04em .12em .08em;border-radius:3px;box-shadow:inset 0 0 0 1.5px #d6aa4c}
+.zosit>p{line-height:1.62rem}
+/* maľby pri udalostiach: pomalé priblíženie a zostarnuté okraje */
+.plate-in{position:relative;overflow:hidden}
+.plate-in::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 46px #3a2a1090,inset 0 0 0 1px #d6aa4c66}
+.plate-in img{animation:plkb 16s ease-out both;transform-origin:50% 40%}
+@keyframes plkb{from{transform:scale(1)}to{transform:scale(1.07)}}
+body[data-gfx="0"] .plate-in img{animation:none}
+@media (prefers-reduced-motion:reduce){.plate-in img{animation:none}}
+

@@ -1,0 +1,21 @@
+.wsx,.wsi3d{width:100%;height:auto;display:block;border-radius:6px}
+.wk{animation:wkbob 1.7s ease-in-out infinite;transform-box:fill-box}
+@keyframes wkbob{0%,100%{translate:0 0}50%{translate:0 -1.2px}}
+.wk .arm{transform-origin:0 0;transform-box:view-box}
+.wk .ar-h{animation:wkh .8s ease-in-out infinite}
+.wk .ar-s{animation:wks 1.6s ease-in-out infinite}
+.wk .ar-w{animation:wkw 1.1s ease-in-out infinite}
+.wk .ar-p{animation:wkp 2.4s ease-in-out infinite}
+@keyframes wkh{0%,100%{rotate:-50deg}45%{rotate:35deg}55%{rotate:35deg}}
+@keyframes wks{0%,100%{rotate:-10deg}50%{rotate:25deg}}
+@keyframes wkw{0%,100%{rotate:-6deg}50%{rotate:8deg}}
+@keyframes wkp{0%,100%{rotate:-8deg}50%{rotate:-30deg}}
+.smk{fill:#cfd2d4;opacity:0;animation:smk 5.6s linear infinite}
+@keyframes smk{0%{opacity:0;transform:translate(0,0) scale(.5)}15%{opacity:.5}100%{opacity:0;transform:translate(14px,-52px) scale(2.4)}}
+.fglow{fill:rgba(255,150,50,.25);animation:fgl 1.3s ease-in-out infinite;mix-blend-mode:screen}
+@keyframes fgl{0%,100%{opacity:.6}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.wk,.wk .arm,.smk,.fglow{animation:none}}
+.wsx,.wsi3d{overflow:hidden}
+.fglow{filter:blur(7px)}
+.wsbox .wsview3{max-height:250px;width:auto;max-width:100%;margin:0 auto}
+.wsbox{background:#2a2018;border-radius:6px;overflow:hidden}

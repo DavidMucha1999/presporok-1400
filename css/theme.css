@@ -1,0 +1,124 @@
+/* Prešporok 1400 – tematický vzhľad: pergamen, tmavé drevo, kov a zlato. Autor a vývojár: Dávid Mucha. */
+:root{--wood1:#2a1b10;--wood2:#1a110a;--iron:#3b3430;--parch:#efe6cf;--seal1:#c4453a;--seal2:#7a1f18}
+
+/* ---------- celková scéna ---------- */
+body{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='120'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .35' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .08  0 0 0 0 .05  0 0 0 0 .02  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E"),radial-gradient(120% 80% at 50% 0%,#2a1d12 0%,#1a120b 60%,#0f0a06 100%) fixed}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;box-shadow:inset 0 0 140px #000a}
+#app{position:relative;z-index:2}
+#modal{position:fixed;z-index:60}
+
+/* ---------- horná lišta: tmavé drevo so zlatým lemom ---------- */
+.top{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='120'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .35' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .08  0 0 0 0 .05  0 0 0 0 .02  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E"),linear-gradient(180deg,#3b2615 0%,#2a1a0e 55%,#1d1209 100%)!important;border-bottom:2px solid #8f6211!important;
+  box-shadow:0 1px 0 #0a0603,0 4px 0 -1px #a5312a,0 5px 0 -1px #d6aa4c,0 16px 28px #000a!important}
+.top.royal{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='120'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .35' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .08  0 0 0 0 .05  0 0 0 0 .02  0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E"),linear-gradient(180deg,#4a1f5a,#33143f 55%,#220b2a)!important}
+.brand h1{font-family:var(--f-disp);color:#f2d78d;text-shadow:0 2px 0 #0a0603,0 0 22px #d6aa4c44}
+.stat{background:linear-gradient(#ffffff10,#ffffff04);border-radius:3px}
+.stat.statp:hover{background:#ffffff14}
+#treasury{background:linear-gradient(#f6e3a6,#e5c36c)!important;border:1px solid #7a560f;box-shadow:inset 0 1px #fff9,0 3px 8px #0008}
+
+/* ---------- záložky ako drevené štítky ---------- */
+.tab{font-family:var(--f-sc);background:linear-gradient(#ffffff0d,#0000);border:1px solid #d6aa4c26;border-bottom:0;border-radius:5px 5px 0 0;color:#d9cfae}
+.tab:hover{background:linear-gradient(#ffffff1c,#ffffff08);color:#fff3cf}
+.tab[aria-selected=true],.tab.on,.tab.active{background:linear-gradient(#f8f0dc,#e9dcb8)!important;color:#3a2614!important;border-color:#a88f5c;box-shadow:0 -2px 0 #d6aa4c inset}
+
+/* ---------- tlačidlá ---------- */
+.btn{border-radius:3px;letter-spacing:.03em;transition:transform .12s,box-shadow .12s,background .12s}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn.pri{background:linear-gradient(#3a64b4,#243f7c);border:1px solid #14234a;box-shadow:inset 0 1px #ffffff40,0 2px 5px #0006}
+.btn.ghost{background:#00000030;border-color:#d6aa4c8c;color:#f1e6c4}
+.btn.ghost:hover:not(:disabled){background:#d6aa4c33}
+.btn.gild{box-shadow:inset 0 1px #fff9,inset 0 -2px #7a560f55,0 3px 8px #000a;letter-spacing:.05em}
+
+/* ---------- pergamenové panely s rohovými ozdobami ---------- */
+.sheet,.mbox{color:var(--ink);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform=''%3E%3Cpath d='M2 38V10Q2 2 10 2H38' fill='none' stroke='%239a7424' stroke-width='1.6'/%3E%3Cpath d='M7 33V13Q7 7 13 7H33' fill='none' stroke='%23d6aa4c' stroke-width='1'/%3E%3Cpath d='M12 12q6 1 7 7' fill='none' stroke='%23a5312a' stroke-width='1.4'/%3E%3Ccircle cx='5' cy='5' r='3' fill='%23a5312a' stroke='%23d6aa4c' stroke-width='1.2'/%3E%3C/g%3E%3C/svg%3E") 6px 6px/30px 30px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='translate(40 0) scale(-1 1)'%3E%3Cpath d='M2 38V10Q2 2 10 2H38' fill='none' stroke='%239a7424' stroke-width='1.6'/%3E%3Cpath d='M7 33V13Q7 7 13 7H33' fill='none' stroke='%23d6aa4c' stroke-width='1'/%3E%3Cpath d='M12 12q6 1 7 7' fill='none' stroke='%23a5312a' stroke-width='1.4'/%3E%3Ccircle cx='5' cy='5' r='3' fill='%23a5312a' stroke='%23d6aa4c' stroke-width='1.2'/%3E%3C/g%3E%3C/svg%3E") calc(100% - 6px) 6px/30px 30px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='translate(0 40) scale(1 -1)'%3E%3Cpath d='M2 38V10Q2 2 10 2H38' fill='none' stroke='%239a7424' stroke-width='1.6'/%3E%3Cpath d='M7 33V13Q7 7 13 7H33' fill='none' stroke='%23d6aa4c' stroke-width='1'/%3E%3Cpath d='M12 12q6 1 7 7' fill='none' stroke='%23a5312a' stroke-width='1.4'/%3E%3Ccircle cx='5' cy='5' r='3' fill='%23a5312a' stroke='%23d6aa4c' stroke-width='1.2'/%3E%3C/g%3E%3C/svg%3E") 6px calc(100% - 6px)/30px 30px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg transform='translate(40 40) scale(-1 -1)'%3E%3Cpath d='M2 38V10Q2 2 10 2H38' fill='none' stroke='%239a7424' stroke-width='1.6'/%3E%3Cpath d='M7 33V13Q7 7 13 7H33' fill='none' stroke='%23d6aa4c' stroke-width='1'/%3E%3Cpath d='M12 12q6 1 7 7' fill='none' stroke='%23a5312a' stroke-width='1.4'/%3E%3Ccircle cx='5' cy='5' r='3' fill='%23a5312a' stroke='%23d6aa4c' stroke-width='1.2'/%3E%3C/g%3E%3C/svg%3E") calc(100% - 6px) calc(100% - 6px)/30px 30px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .30  0 0 0 0 .20  0 0 0 0 .08  0 0 0 .11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(130% 90% at 50% 0%,#f9f2e0 0%,#efe6cf 48%,#dfcfa8 100%);
+  border:1px solid #8a6f3e;border-radius:2px;
+  box-shadow:inset 0 0 0 3px #efe6cf,inset 0 0 0 4px #8f621166,inset 0 0 40px #8a6a2a22,0 10px 26px #000a}
+.sheet.royal{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .30  0 0 0 0 .20  0 0 0 0 .08  0 0 0 .11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),linear-gradient(135deg,#f6ecd2,#ead9b0);box-shadow:inset 0 0 0 3px #6d1f8a2e,inset 0 0 0 4px #d6aa4c99,0 10px 26px #000a}
+.mbox{padding:36px 30px 22px}
+.sheet h2,.sheet h3,.mbox h2,.mbox h3{font-family:var(--f-head);letter-spacing:.01em}
+.mwrap .seal{filter:drop-shadow(0 3px 4px #0008)}
+.hero{border:2px solid #8f6211;box-shadow:0 0 0 4px #1a110a,0 0 0 5px #d6aa4c88,0 14px 30px #000b}
+.pill,.chip{border-radius:3px}
+input[type=text],select,textarea{background:#fbf5e4;border:1px solid #9c8452;border-radius:2px;box-shadow:inset 0 1px 3px #6d5a3a33}
+input[type=text]:focus,select:focus{outline:2px solid #d6aa4c;outline-offset:1px}
+
+/* ---------- ponuka počas hry ---------- */
+.gm{display:grid;gap:8px;margin:6px 0 2px}
+.gm-b{display:flex;align-items:center;gap:12px;text-align:left;padding:12px 16px;font:600 1.08rem var(--f-sc);letter-spacing:.04em;color:#2b2117;cursor:pointer;
+  background:linear-gradient(#fbf4df,#e7d9b3);border:1px solid #8a6f3e;border-radius:3px;box-shadow:inset 0 1px #fff,0 2px 4px #0003}
+.gm-b svg{flex:none;color:#7a1f18}
+.gm-b:hover{background:linear-gradient(#fff8e2,#f0e0b4);border-color:#a5312a}
+.gm-b.quit{background:linear-gradient(#e7c9c0,#d4a89d)}
+.gm-n{margin:12px 0 0;font-size:.9rem;text-align:center}
+.gmtg svg{margin-right:5px;vertical-align:-3px}
+
+/* ---------- hlavné menu ---------- */
+.mainmenu{position:fixed;inset:0;z-index:5;overflow:auto;display:flex;align-items:center;justify-content:center;background:#0d0906}
+.mm-bg{position:fixed;inset:-4%;background-size:cover;background-position:center;filter:saturate(.9) brightness(.72);animation:mmzoom 38s ease-in-out infinite alternate}
+@keyframes mmzoom{from{transform:scale(1) translateX(0)}to{transform:scale(1.1) translateX(-1.5%)}}
+.mm-veil{position:fixed;inset:0;background:radial-gradient(70% 70% at 50% 45%,#0000 0%,#0a0604b0 75%,#0a0604f0 100%),linear-gradient(180deg,#0a060480,#0a060400 30%,#0a0604cc 100%)}
+.mm-in{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px max(16px,env(safe-area-inset-left,0px));width:100%;max-width:560px;text-align:center}
+.mm-crest{filter:drop-shadow(0 6px 10px #000c);margin-bottom:2px}
+.mm-kick{margin:0;font:.95rem var(--f-sc);letter-spacing:.24em;text-transform:lowercase;color:#d9cfae}
+.mm-title{margin:0;white-space:nowrap;font:500 clamp(2.4rem,10vw,4.6rem)/1 var(--f-disp);color:#f2d78d;text-shadow:0 3px 0 #0a0603,0 0 30px #d6aa4c55}
+.mm-title span{color:#fff3cf}
+.mm-rule{display:flex;align-items:center;gap:14px;width:100%;margin:4px 0 14px;color:#d6aa4c}
+.mm-rule i{flex:1;height:1px;background:linear-gradient(90deg,#0000,#d6aa4c,#0000)}
+.mm-rule em{font:.9rem var(--f-sc);letter-spacing:.3em;font-style:normal}
+.mm-btns{display:grid;gap:9px;width:100%}
+.mm-pair{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.mm-btn{display:flex;align-items:center;gap:14px;text-align:left;padding:11px 16px;cursor:pointer;color:#f4ead0;font-family:var(--f-sc);
+  background:linear-gradient(#2c1d11e6,#1a110ae6);border:1px solid #d6aa4c99;border-radius:3px;box-shadow:inset 0 1px #ffffff1a,0 4px 12px #000a;
+  transition:transform .14s,background .14s,border-color .14s,box-shadow .14s}
+.mm-btn:hover,.mm-btn:focus-visible{transform:translateY(-2px);background:linear-gradient(#3f2a18f2,#26190ff2);border-color:#f2d78d;box-shadow:inset 0 1px #ffffff26,0 8px 18px #000c,0 0 0 1px #d6aa4c55;outline:none}
+.mm-btn:active{transform:translateY(1px)}
+.mm-ic{flex:none;width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 35% 30%,#d9594c,#8a251c 70%);color:#fbe9bf;box-shadow:inset 0 0 0 1.5px #d6aa4c,0 2px 4px #0008}
+.mm-tx{display:flex;flex-direction:column;min-width:0}
+.mm-tx b{font-size:1.18rem;font-weight:600;letter-spacing:.06em}
+.mm-tx small{font:.88rem var(--f-body);color:#cdbf9a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mm-btn.primary{background:linear-gradient(#f6dd97,#d9a843 55%,#b9852a);color:#2a1a05;border-color:#7a560f;box-shadow:inset 0 1px #fff9,0 4px 14px #000b,0 0 22px #d6aa4c44}
+.mm-btn.primary:hover{background:linear-gradient(#fbe8ae,#e4b650 55%,#c4902f)}
+.mm-btn.primary .mm-tx small{color:#4a3511}
+.mm-btn.quit .mm-ic{background:radial-gradient(circle at 35% 30%,#6a5f55,#2f2924 70%)}
+.mm-pair .mm-btn{padding:10px 12px;gap:10px}.mm-pair .mm-ic{width:28px;height:28px}.mm-pair .mm-tx b{font-size:1.05rem}
+.credit{margin:18px 0 0;font:.95rem var(--f-sc);letter-spacing:.16em;color:#bfb08a;text-transform:lowercase}
+.credit b{color:#f2d78d;font-weight:600;letter-spacing:.12em}
+
+/* ---------- vytvorenie rodu ---------- */
+.nr-bar{display:flex;align-items:center;gap:16px;padding-block:14px}
+.nr-t{font:500 1.7rem var(--f-disp);color:#f2d78d;text-shadow:0 2px 0 #0a0603}
+.newrod .start{max-width:1180px;display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:20px;align-items:start;margin-top:6px}
+.newrod .start>*{grid-column:1}
+.newrod .start>.hero{grid-column:1/-1;max-height:230px;overflow:hidden}
+.newrod .start>.hero svg,.newrod .start>.hero .introart{max-height:230px}
+.newrod .start>.np{grid-column:2;grid-row:2/span 6;position:sticky;top:14px}
+.np-in{position:relative;text-align:center;padding:20px 16px 22px;border:1px solid #8a6f3e;border-radius:2px;color:#2b2117;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .30  0 0 0 0 .20  0 0 0 0 .08  0 0 0 .11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),radial-gradient(130% 90% at 50% 0%,#f9f2e0,#e6d8b4);box-shadow:inset 0 0 0 3px #efe6cf,inset 0 0 0 4px #8f621166,0 12px 28px #000b}
+.np-fig{position:relative;display:flex;justify-content:center;align-items:flex-end;gap:6px;padding:12px 0 4px}
+.np-por{border:2px solid #8f6211;border-radius:3px;background:#d9c8a0;padding:4px;box-shadow:0 3px 8px #0005}
+.np-arms{margin-left:-24px;margin-bottom:-6px;filter:drop-shadow(0 4px 5px #0007)}
+.np h3{margin:12px 0 2px;font:500 1.6rem var(--f-disp);color:#3a2614}
+.np-cls{margin:0;color:#6c5d47;font-size:.98rem}
+.np-seal{position:absolute;right:12px;bottom:10px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:500 1.2rem var(--f-disp);color:#fbe9bf;background:radial-gradient(circle at 35% 30%,#d9594c,#7a1f18 72%);box-shadow:inset 0 0 0 1.5px #d6aa4c,0 2px 4px #0006;transform:rotate(-8deg)}
+@media (max-width:900px){.newrod .start{grid-template-columns:minmax(0,1fr)}.newrod .start>.np{grid-column:1;grid-row:auto;position:static;order:-1}.newrod .start>.hero{display:none}}
+
+/* ---------- rozlúčka po ukončení v prehliadači ---------- */
+.farewell{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center;background:#0d0906}
+.fw-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.45) saturate(.9)}
+.fw-in{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:24px 16px;color:#f4ead0}
+.fw-in h2{margin:6px 0 0;font:500 clamp(2rem,6vw,3.2rem) var(--f-disp);color:#f2d78d;text-shadow:0 3px 0 #0a0603}
+.fw-in p{margin:0 0 12px;color:#d9cfae}
+.farewell .mm-btn{min-width:260px}
+
+@media (prefers-reduced-motion:reduce){.mm-bg{animation:none}.btn,.mm-btn{transition:none}}
+#advp{z-index:3}body:has(.mainmenu) #advp,body:has(.mainmenu) #toast{display:none!important}
+
+.gm-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.gm-two .gm-b{padding:11px 12px;font-size:1rem}

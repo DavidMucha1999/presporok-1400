@@ -1,0 +1,96 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Prešporok 1400</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almendra:ital,wght@0,400;0,700;1,400&family=Almendra+SC&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Grenze+Gotisch:wght@500;700&display=swap">
+<link rel="stylesheet" href="css/game.css?v=25">
+<link rel="stylesheet" href="css/theme.css?v=24">
+<link rel="stylesheet" href="css/seasons.css?v=26">
+<link rel="stylesheet" href="css/manuscript.css?v=28">
+<link rel="stylesheet" href="css/listiny.css?v=29">
+<link rel="stylesheet" href="css/politika.css?v=31">
+<link rel="stylesheet" href="css/okolie.css?v=43">
+<link rel="stylesheet" href="css/dielne.css?v=38">
+<style>
+#boot{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:#0d0906;color:#f4ead0;font-family:"Almendra SC","EB Garamond",Georgia,serif;transition:opacity .8s ease,visibility .8s}
+#boot.out{opacity:0;visibility:hidden}
+.boot-bg{position:absolute;inset:-5%;background:url(img/h_jun.jpg) center/cover;filter:brightness(.62) saturate(.95);animation:bootzoom 24s ease-in-out infinite alternate}
+@keyframes bootzoom{from{transform:scale(1)}to{transform:scale(1.12) translateX(-2%)}}
+.boot-veil{position:absolute;inset:0;background:radial-gradient(65% 65% at 50% 46%,#0000 0%,#0a0604b8 78%,#0a0604f2 100%),linear-gradient(180deg,#0a060499,#0a060400 32%,#0a0604dd 100%)}
+.boot-in{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;width:100%;max-width:640px;padding:24px max(16px,env(safe-area-inset-left,0px));text-align:center}
+.boot-crest{filter:drop-shadow(0 6px 12px #000d);animation:crest 3.2s ease-in-out infinite alternate}
+@keyframes crest{from{transform:translateY(0)}to{transform:translateY(-5px)}}
+.boot-kick{margin:6px 0 0;font-size:.95rem;letter-spacing:.24em;color:#d9cfae;text-transform:lowercase}
+.boot-title{margin:0;white-space:nowrap;font:500 clamp(2.4rem,10vw,4.8rem)/1 "Grenze Gotisch","Old English Text MT",Georgia,serif;color:#f2d78d;text-shadow:0 3px 0 #0a0603,0 0 34px #d6aa4c66}
+.boot-title span{color:#fff3cf}
+.boot-sub{margin:0 0 18px;font-size:.9rem;letter-spacing:.32em;color:#d6aa4c}
+.boot-track{position:relative;width:min(420px,100%);height:20px;border-radius:10px;background:#120b06;border:1px solid #d6aa4c;box-shadow:inset 0 2px 6px #000,0 0 0 3px #0a0604,0 0 0 4px #8f621199,0 6px 16px #000b;overflow:hidden}
+.boot-fill{position:absolute;inset:2px;border-radius:8px;transform-origin:left;transform:scaleX(0);background:repeating-linear-gradient(115deg,#ffffff22 0 6px,#0000 6px 12px),linear-gradient(#e8c360,#b9852a 60%,#8f6211);box-shadow:0 0 14px #d6aa4c88}
+.boot-msg{margin:12px 0 0;min-height:1.3em;font:1.02rem "EB Garamond",Georgia,serif;font-style:italic;color:#d9cfae}
+.boot-pct{font-size:.85rem;letter-spacing:.2em;color:#bfb08a}
+.boot-credit{position:absolute;left:0;right:0;bottom:max(18px,env(safe-area-inset-bottom,0px));margin:0;text-align:center;font-size:.98rem;letter-spacing:.18em;color:#bfb08a;text-transform:lowercase}
+.boot-credit b{color:#f2d78d;font-weight:400;letter-spacing:.14em}
+@media (prefers-reduced-motion:reduce){.boot-bg,.boot-crest{animation:none}}
+#pcmin{display:none;position:fixed;inset:0;z-index:5000;align-items:center;justify-content:center;padding:24px;background:#0d0906f2;color:#f4ead0;font:1.15rem/1.5 "EB Garamond",Georgia,serif;text-align:center}
+#pcmin b{font-family:"Almendra SC",Georgia,serif;color:#f2d78d;font-size:1.4rem}#pcmin kbd{border:1px solid #d6aa4c;border-radius:4px;padding:0 6px}
+@media (max-width:999px),(max-height:599px){#pcmin{display:flex}}
+</style>
+
+<div id="boot" role="status" aria-live="polite">
+  <div class="boot-bg"></div><div class="boot-veil"></div>
+  <div class="boot-in">
+    <svg class="boot-crest" width="96" height="112" viewBox="0 0 96 112" aria-hidden="true"><path d="M6 6h84v50c0 28-20 44-42 54C26 100 6 84 6 56z" fill="#1d3568" stroke="#d6aa4c" stroke-width="4"/><path d="M6 6h84v50c0 28-20 44-42 54C26 100 6 84 6 56z" fill="none" stroke="#0a0604" stroke-width="1.5" transform="translate(0 0)"/><path d="M48 30 70 62H26z" fill="#d6aa4c" stroke="#7a560f" stroke-width="2"/><path d="M48 52 70 84H26z" fill="#d6aa4c" stroke="#7a560f" stroke-width="2"/><path d="M30 14h36" stroke="#f2d78d" stroke-width="2.500"/></svg>
+    <p class="boot-kick">od Prešporka po kráľovský dvor v Londýne</p>
+    <h1 class="boot-title">Prešporok <span>1400</span></h1>
+    <p class="boot-sub">ANNO DOMINI MCD</p>
+    <div class="boot-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="bootbar"><div class="boot-fill" id="bootfill"></div></div>
+    <p class="boot-pct" id="bootpct">0 %</p>
+    <p class="boot-msg" id="bootmsg">Rozsvecujú sa lampy…</p>
+  </div>
+  <p class="boot-credit">Tvorca a vývojár hry <b>Dávid Mucha</b></p>
+</div>
+
+<div id="pcmin" role="alert"><div><b>Prešporok 1400</b> je hra pre počítač.<br>Zväčši okno prehliadača aspoň na 1000 × 600 bodov alebo stlač <kbd>F11</kbd>.</div></div>
+<div id="app"></div>
+<div id="modal" hidden><div class="mwrap"><span class="seal" aria-hidden="true"></span><div class="mbox" role="dialog" aria-modal="true"><div id="mbody"></div><div class="mfoot" id="mfoot"></div></div></div></div>
+
+<script>
+(function(){
+  var t0=Date.now(), MIN=3600;try{if(localStorage.getItem("p1400seen"))MIN=1400;localStorage.setItem("p1400seen","1")}catch(e){}
+  var fill=document.getElementById("bootfill"), pct=document.getElementById("bootpct"), msg=document.getElementById("bootmsg"), bar=document.getElementById("bootbar"), boot=document.getElementById("boot");
+  var FALL=[["https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js","Pripravujú sa záznamy…",true],["zdroj/01-game.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/02-shell.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/03-seasons.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/04-listiny.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/05-zivemesto.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/06-politika.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/07-budovy.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/08-okolie.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/09-dielne.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/10-zvuky.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/11-udalosti.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/12-karavany.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/13-priblizenie.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/14-mesta.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/15-detaily.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/16-centra.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/17-vykon.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/18-zoommesta.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/19-kralovsky.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/20-mestovyvoj.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/21-pozemky.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/22-rast.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/23-rody.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/24-ulica.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/25-znacky.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/26-jednoduche.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/27-tok.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/28-hlavicka.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/29-prilezitost.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/30-vplyv.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/31-urady.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/32-tempo.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/33-stavby.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/34-celamapa.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/35-mesto3d.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/36-sidla.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/37-dielnescena.js?v=mwl4fjx2","Otvára sa kniha rodu…",false],["zdroj/99-zaver.js?v=mwl4fjx2","Otvára sa kniha rodu…",false]];var scripts=[FALL[0],["js/hra.js?v=262","Otvára sa kniha rodu…",false,1]];if(/[?&]kontrola/.test(location.search))scripts.push(["nastroje/kontrola.js?t="+Date.now(),"Pripravuje sa kontrola sekcií…",true]);
+  var imgs="apr aug banquet battle bear birth bread build cite conclave council court crecy dec doctor fair feb fire fish fun2 h_apr h_jun h_may h_oct h_sep habemus hunt isabeau jan joust joust2 jul jun knight manesse may meat merch monks mortagne notary oath oct ordin popecard prim ride rob sacre3 sep ship sick sluys stan t_brush t_crack t_grass t_snow t_soil t_wheat tiara travel uni wagen wedding zizka".split(" ");
+  var target=0, shown=0, sDone=0, iDone=0, finished=false, gameOk=true;
+  function upd(){target=Math.min(1,0.4*(sDone/scripts.length)+0.6*(iDone/imgs.length));}
+  imgs.forEach(function(n){var im=new Image();im.onload=im.onerror=function(){iDone++;upd()};im.src="img/"+n+".jpg"});
+  var i=0;
+  function step(){
+    if(i>=scripts.length){return}
+    var f=scripts[i++];msg.textContent=f[1];
+    var s=document.createElement("script");s.src=f[0];s.async=false;
+    s.onload=function(){sDone++;upd();step()};
+    s.onerror=function(){if(f[3]){i--;scripts=scripts.slice(0,i).concat(FALL.slice(1));step();return}if(f[2]){sDone++;upd();step();return}gameOk=false;msg.textContent="Hra sa nenačítala. Obnov stránku."};
+    document.body.appendChild(s);
+  }
+  requestAnimationFrame(function(){requestAnimationFrame(step)});
+  var lines=["Rozsvecujú sa lampy…","Pripravujú sa záznamy…","Otvára sa kniha rodu…","Ukladajú sa ulice mesta…","Maľujú sa erby…","Vitaj v Prešporku"];
+  function tick(){
+    var el=Date.now()-t0, cap=Math.min(1,el/MIN);
+    var goal=(sDone===scripts.length&&iDone===imgs.length)?1:Math.min(target,.97);
+    goal=Math.min(goal,cap);
+    shown+= (goal-shown)*.12; if(goal-shown<.002) shown=goal;
+    fill.style.transform="scaleX("+shown.toFixed(3)+")";
+    var p=Math.round(shown*100);pct.textContent=p+" %";bar.setAttribute("aria-valuenow",p);
+    if(gameOk&&shown<.999&&scripts[Math.min(i,scripts.length)-1]) { var li=Math.min(lines.length-2,Math.floor(shown*(lines.length-1))); msg.textContent=lines[li]; }
+    if(shown>=.999&&gameOk&&!finished&&sDone===scripts.length){
+      finished=true;msg.textContent="Vitaj v Prešporku";
+      setTimeout(function(){boot.classList.add("out");setTimeout(function(){boot.remove()},900)},450);
+      return;
+    }
+    if(gameOk) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>

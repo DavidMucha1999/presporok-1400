@@ -1,0 +1,12 @@
+/* Radnica a misie */
+.pol h3{margin:14px 0 6px}
+.pol-f{border:1px solid #0000002a;border-radius:6px;padding:8px 10px;margin:8px 0;background:#00000008}
+.pol-fh{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pol-fd{font-size:.88rem;margin:2px 0 6px}
+.pol-bar{position:relative;height:8px;background:#0000001f;border-radius:4px;overflow:hidden;margin:4px 0}
+.pol-bar i{position:absolute;top:0;bottom:0;background:#4a7a3a;border-radius:4px}
+.pol-act{gap:6px;flex-wrap:wrap}
+.pol-h{margin:4px 0;padding-left:18px;font-size:.92rem}
+.mis-por{float:left;margin:0 14px 6px 0}
+.mis-por svg,.mis-por img{display:block;max-width:84px;height:auto}
+
