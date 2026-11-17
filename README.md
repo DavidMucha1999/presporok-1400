@@ -1,5 +1,7 @@
 # Prešporok 1400
 
+*[English version](README.en.md)*
+
 Obchodná a dynastická hra zo stredovekej Európy, ktorá beží priamo v prehliadači na počítači.
 
 **▶ [Spustiť hru](https://davidmucha1999.github.io/presporok-1400/)**
@@ -21,6 +23,21 @@ Netreba nič inštalovať. Hra je určená pre počítač s klávesnicou a myšo
 |---|---|
 | Hra | `1`–`9`, `0`, `-`, `=` karty, `M` mesto, `D` dielne, `T` trh, `R` rod, `Medzerník` ukončiť štvrťrok, `Z` vrátiť akciu, `F` celá obrazovka, `?` všetky skratky |
 | 3D mesto | `W` `A` `S` `D` alebo šípky chôdza, `Shift` beh, ťahanie myšou pohľad, `E` použiť, `M` pohľad z výšky, `T` miesta, `Q` kvalita grafiky |
+
+## Architektúra
+
+```
+zdroj/01-game.js … 37-dielnescena.js, 99-zaver.js   zdrojové moduly
+        │  node nastroje/zostav.js
+        ▼
+js/hra.js  ──  index.html načíta jeden súbor (so záložným načítaním po moduloch)
+nastroje/kontrola.js  ──  automatická kontrola rozhrania a 3D mesta (index.html?kontrola)
+```
+
+- **Moduly:** číslo v názve určuje poradie. `01-game.js` je jadro (stav hry, ekonomika, pravidlá, hlavné obrazovky, väčšina generovanej SVG grafiky). Ďalšie moduly pridávajú funkcie tak, že obalia existujúce funkcie, takže každá funkcia hry má vlastný súbor.
+- **Stav a rozhranie:** celá hra je jeden objekt stavu `S`, ktorý sa ukladá skomprimovaný (lz-string) do `localStorage`. `render()` vykreslí rozhranie zo stavu, tlačidlá s atribútom `data-a` volajú akcie v objekte `A` a tie zmenia stav a vykreslia znova.
+- **Grafika:** mapy miest, budovy, erby, portréty aj scény sa generujú v kóde ako SVG.
+- **3D mesto:** stavia sa z tých istých údajov ako 2D mapa (ulice, hradby, pozemky a budovy na nich), takže vždy zodpovedá hre. Používa vlastné spracovanie obrazu (HDR, ACES, opar, bloom, tiene oblakov, mokrá zem z hĺbkovej mapy). Pre výkon zlučuje nehybné objekty (asi 930 do 100), skrýva drobnosti v diaľke a mení rozlíšenie podľa FPS. Vykresľovacích volaní je tak o 25–37 % menej.
 
 ## Technické údaje
 
