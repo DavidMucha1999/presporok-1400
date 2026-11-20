@@ -432,20 +432,22 @@ function weaveTex(){if(WEAVE)return WEAVE;const N=128,c=document.createElement("
  x.putImageData(im,0,0);WEAVE=new T.CanvasTexture(c);WEAVE.wrapS=WEAVE.wrapT=T.RepeatWrapping;WEAVE.anisotropy=4;return WEAVE}
 /* diely postavy zlúčené do piatich telies s farbami vo vrcholoch (v104) */
 let FIGM=null;const FGC={};let AUD3=null;
-function mergeParts(parts){const P=[],N=[],C=[],I=[],UV=[];let base=0;const m4=new T.Matrix4(),q4=new T.Quaternion(),e=new T.Euler(),v=new T.Vector3(),n3=new T.Matrix3(),col=new T.Color();
+function glossOf(c,ms){const r=c.r,g=c.g,b=c.b,mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,sat=mx-mn;
+ if(r>.62&&g>.45&&b<.5&&r>g&&g>b&&sat>.25&&l>.45)return 1;if(sat<.09&&l>.5&&b>=r-.02)return .9;if(ms<.4&&l<.33&&r>b+.05&&r>=g)return .4;return 0}
+function mergeParts(parts){const P=[],N=[],C=[],I=[],UV=[],GL=[];let base=0;const m4=new T.Matrix4(),q4=new T.Quaternion(),e=new T.Euler(),v=new T.Vector3(),n3=new T.Matrix3(),col=new T.Color();
  for(const pt of parts){const g0=pt[0],pa=g0.attributes.position,na=g0.attributes.normal;e.set(...(pt[4]||[0,0,0]));q4.setFromEuler(e);m4.compose(new T.Vector3(...pt[2]),q4,new T.Vector3(...(pt[3]||[1,1,1])));n3.getNormalMatrix(m4);col.set(pt[1]);
   const flat=pt[5]===1||FLATG.has(g0)||Math.max(...(pt[3]||[1,1,1]))<.06;
-  const ca=g0.attributes.color;for(let i=0;i<pa.count;i++){v.fromBufferAttribute(pa,i).applyMatrix4(m4);P.push(v.x,v.y,v.z);if(flat)UV.push(.92,.92);else UV.push((v.x*.8+v.z*.6)*2.6,v.y*2.6);if(na){v.fromBufferAttribute(na,i).applyMatrix3(n3).normalize();N.push(v.x,v.y,v.z)}else N.push(0,1,0);if(ca){const k=ca.getX(i);C.push(Math.min(1,col.r*k),Math.min(1,col.g*k),Math.min(1,col.b*k))}else C.push(col.r,col.g,col.b)}
+  const ca=g0.attributes.color,gv=pt[5]===1?0:glossOf(col,Math.max(...(pt[3]||[1,1,1])));for(let i=0;i<pa.count;i++){GL.push(gv);v.fromBufferAttribute(pa,i).applyMatrix4(m4);P.push(v.x,v.y,v.z);if(flat)UV.push(.92,.92);else UV.push((v.x*.8+v.z*.6)*2.6,v.y*2.6);if(na){v.fromBufferAttribute(na,i).applyMatrix3(n3).normalize();N.push(v.x,v.y,v.z)}else N.push(0,1,0);if(ca){const k=ca.getX(i);C.push(Math.min(1,col.r*k),Math.min(1,col.g*k),Math.min(1,col.b*k))}else C.push(col.r,col.g,col.b)}
   if(g0.index){const ix=g0.index;for(let i=0;i<ix.count;i++)I.push(base+ix.getX(i))}else for(let i=0;i<pa.count;i++)I.push(base+i);base+=pa.count}
- const g=new T.BufferGeometry();g.setAttribute("position",new T.Float32BufferAttribute(P,3));g.setAttribute("normal",new T.Float32BufferAttribute(N,3));g.setAttribute("color",new T.Float32BufferAttribute(C,3));g.setAttribute("uv",new T.Float32BufferAttribute(UV,2));g.setIndex(I);return g}
+ const g=new T.BufferGeometry();g.setAttribute("position",new T.Float32BufferAttribute(P,3));g.setAttribute("normal",new T.Float32BufferAttribute(N,3));g.setAttribute("color",new T.Float32BufferAttribute(C,3));g.setAttribute("uv",new T.Float32BufferAttribute(UV,2));g.setAttribute("gloss",new T.Float32BufferAttribute(GL,1));g.setIndex(I);return g}
 const ELB=.31,KNEE=.43;
 /* hladké telo (v270): prstence okolo kostí pospájané do jedného povrchu; každý vrchol patrí jednej alebo dvom kostiam,
    takže sa lakeť, koleno, plece aj krk ohýbajú plynulo. Kosti: 0 trup, 1 hlava, 2–3 ľavá ruka, 4–5 pravá ruka, 6–9 nohy */
-let FIGSK=null;const RIMU={value:null};
-function rimify(mt){mt.onBeforeCompile=sh=>{if(!RIMU.value)RIMU.value=new T.Color(.36,.39,.44);sh.uniforms.rimC=RIMU;
-  sh.vertexShader=sh.vertexShader.replace("#include <common>","#include <common>\nvarying vec3 vRimN;varying vec3 vRimV;").replace("#include <project_vertex>","#include <project_vertex>\nvRimN=transformedNormal;vRimV=-mvPosition.xyz;");
-  sh.fragmentShader=sh.fragmentShader.replace("#include <common>","#include <common>\nuniform vec3 rimC;varying vec3 vRimN;varying vec3 vRimV;").replace("#include <envmap_fragment>","#include <envmap_fragment>\n{vec3 rn=normalize(vRimN);if(!gl_FrontFacing)rn=-rn;float fr=pow(1.0-clamp(dot(rn,normalize(vRimV)),0.0,1.0),3.2);outgoingLight+=rimC*fr*(0.18+0.82*diffuseColor.rgb);}")};
- mt.customProgramCacheKey=()=>"rim1"+(mt.skinning?"s":"");return mt}
+let FIGSK=null;const RIMU={value:null},WETU={value:0},SNOWU={value:0};
+function rimify(mt){mt.onBeforeCompile=sh=>{if(!RIMU.value)RIMU.value=new T.Color(.36,.39,.44);sh.uniforms.rimC=RIMU;sh.uniforms.wetU=WETU;sh.uniforms.snowU=SNOWU;
+  sh.vertexShader=sh.vertexShader.replace("#include <common>","#include <common>\nvarying vec3 vRimN;varying vec3 vRimV;attribute float gloss;varying float vGloss;varying float vUp;").replace("#include <project_vertex>","#include <project_vertex>\nvRimN=transformedNormal;vRimV=-mvPosition.xyz;vGloss=gloss;vUp=normalize((modelMatrix*vec4(objectNormal,0.0)).xyz).y;");
+  sh.fragmentShader=sh.fragmentShader.replace("#include <common>","#include <common>\nuniform vec3 rimC;uniform float wetU;uniform float snowU;varying vec3 vRimN;varying vec3 vRimV;varying float vGloss;varying float vUp;").replace("#include <color_fragment>","#include <color_fragment>\n{float sf=snowU*smoothstep(.5,.85,vUp);diffuseColor.rgb=mix(diffuseColor.rgb*(1.0-.24*wetU*(1.0-vGloss)),vec3(.93,.95,1.0),sf);}").replace("#include <envmap_fragment>","#include <envmap_fragment>\n{vec3 rn=normalize(vRimN);if(!gl_FrontFacing)rn=-rn;float fr=pow(1.0-clamp(dot(rn,normalize(vRimV)),0.0,1.0),3.2);outgoingLight+=rimC*fr*(0.18+0.82*diffuseColor.rgb);}\n#if NUM_DIR_LIGHTS > 0\n{vec3 rn2=normalize(vRimN);if(!gl_FrontFacing)rn2=-rn2;vec3 Hh=normalize(directionalLights[0].direction+normalize(vRimV));float gs=vGloss+wetU*.3;float sm=1.0;\n#ifdef USE_SHADOWMAP\nsm=getShadowMask();\n#endif\nfloat sp=pow(max(dot(rn2,Hh),0.0),mix(14.0,70.0,clamp(vGloss,0.0,1.0)))*gs*sm;outgoingLight+=directionalLights[0].color*sp*mix(vec3(.5),diffuseColor.rgb*1.6,step(.85,vGloss));}\n#endif")};
+ mt.customProgramCacheKey=()=>"rim2"+(mt.skinning?"s":"");return mt}
 /* zatienenie tela (v278): miesta, kam sa svetlo z okolia dostane horšie */
 function aoBody(bi,x,y,z){const cl=(q)=>Math.max(0,Math.min(1,q)),ax=Math.abs(x);let m=1;
  if(bi===0){m-=.24*cl((ax-.2)/.1)*cl(1-Math.abs(y-1.36)/.16);if(y>1.62&&y<1.75&&z>0)m-=.2*cl(z/.07)*cl(1-Math.abs(y-1.68)/.06)}
@@ -492,15 +494,10 @@ function faceSet(key,o){if(FACES[key])return FACES[key];const W=128,c=document.c
   if(o.age>55){x.strokeStyle=rgba(sh,.32);x.lineWidth=1;[.25,.29,.33].forEach(v=>{x.beginPath();x.moveTo(X(.4),Y(v));x.quadraticCurveTo(X(.5),Y(v-.012),X(.6),Y(v));x.stroke()});[-1,1].forEach(d=>{for(let k=0;k<3;k++){x.beginPath();x.moveTo(X(.5+d*.235),Y(.52+k*.02-.02));x.lineTo(X(.5+d*.27),Y(.51+k*.035-.03));x.stroke()}});[.34,.66].forEach(u=>soft(u,.6,9,4,sh,.25))}
   /* obočie */
   x.strokeStyle=brow;x.lineWidth=o.fem?2.4:3.6;[-1,1].forEach(d=>{const lift=smile?-.012:talk?-.02:0;x.beginPath();x.moveTo(X(.5+d*.075),Y(.415+lift));x.quadraticCurveTo(X(.5+d*.155),Y(.37+lift),X(.5+d*.23),Y(.405+lift));x.stroke()});
-  /* oči */
-  [-1,1].forEach(d=>{const cu=.5+d*.158,cv=.535,ex=10.5,ey=smile?4.2:5.6;
-   if(blink){x.strokeStyle=dark;x.lineWidth=2;x.beginPath();x.moveTo(X(cu)-ex,Y(cv)+1);x.quadraticCurveTo(X(cu),Y(cv)+4,X(cu)+ex,Y(cv)+1);x.stroke();return}
-   x.save();x.beginPath();x.ellipse(X(cu),Y(cv),ex,ey,0,0,6.2832);x.fillStyle="#f3eee6";x.fill();x.clip();
-   x.fillStyle=o.ec;x.beginPath();x.arc(X(cu),Y(cv)+.5,5.2,0,6.2832);x.fill();x.fillStyle="#120c08";x.beginPath();x.arc(X(cu),Y(cv)+.5,2.4,0,6.2832);x.fill();
-   x.fillStyle="rgba(255,255,255,.9)";x.beginPath();x.arc(X(cu)-1.6,Y(cv)-1.4,1.3,0,6.2832);x.fill();x.fillStyle=rgba(o.skin,.35);x.fillRect(X(cu)-ex,Y(cv)-ey,2*ex,ey*.55);x.restore();
-   x.strokeStyle=dark;x.lineWidth=o.fem?2.4:1.9;x.beginPath();x.ellipse(X(cu),Y(cv),ex,ey,0,Math.PI*1.04,Math.PI*1.96);x.stroke();
-   if(o.fem){x.lineWidth=1.3;x.beginPath();x.moveTo(X(cu)+d*ex*.95,Y(cv)-ey*.3);x.lineTo(X(cu)+d*(ex+3),Y(cv)-ey*.9);x.stroke()}
-   x.strokeStyle=rgba(sh,.45);x.lineWidth=1;x.beginPath();x.ellipse(X(cu),Y(cv)+.6,ex*.85,ey,0,Math.PI*.15,Math.PI*.85);x.stroke()});
+  /* oči sú 3D (v290): na tvári ostane vráska viečka a jemný tieň pod okom */
+  [-1,1].forEach(d=>{const cu=.5+d*.158,cv=.535;x.strokeStyle=rgba(sh,.32);x.lineWidth=1.1;x.beginPath();x.ellipse(X(cu),Y(cv)-1,12.5,8.5,0,Math.PI*1.12,Math.PI*1.88);x.stroke();x.strokeStyle=rgba(sh,.2);x.beginPath();x.ellipse(X(cu),Y(cv)+1.5,10.5,6.5,0,Math.PI*.2,Math.PI*.8);x.stroke()});
+  /* otvor oka (v290) */
+  x.save();x.globalCompositeOperation="destination-out";[-1,1].forEach(d=>{const cu=X(.5+d*.158),cv=Y(.535),ex=11.5,ey=6.4;x.beginPath();x.moveTo(cu-ex,cv+.5);x.quadraticCurveTo(cu-ex*.2,cv-ey*1.55,cu+ex,cv-.5);x.quadraticCurveTo(cu+ex*.1,cv+ey*1.35,cu-ex,cv+.5);x.fill()});x.restore();
   /* nos: nosné dierky */
   x.fillStyle=rgba(dark,.45);[-1,1].forEach(d=>{x.beginPath();x.ellipse(X(.5+d*.03),Y(.705),2.2,1.3,0,0,6.2832);x.fill()});
   /* ústa */
@@ -511,7 +508,7 @@ function faceSet(key,o){if(FACES[key])return FACES[key];const W=128,c=document.c
    if(smile){x.strokeStyle=rgba(sh,.35);x.lineWidth=1.1;[-1,1].forEach(d=>{x.beginPath();x.moveTo(X(.5+d*(mw+.01)),Y(mv)-6);x.quadraticCurveTo(X(.5+d*(mw+.03)),Y(mv)-2,X(.5+d*(mw+.015)),Y(mv)+2);x.stroke()})}}
   x.restore()}
  if(!FACEGEO)FACEGEO=new T.SphereGeometry(.2028,26,18,Math.PI/2-1.1,2.2,.5,1.75);
- const kc=(T.__m3cm&&CMON)?.915:1,mats=[0,1,2,3].map(k=>{const t=new T.CanvasTexture(c);t.repeat.set(.25,1);t.offset.set(k*.25,0);t.anisotropy=4;const m=new T.MeshLambertMaterial({map:t,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});m.color.setScalar(kc);return m});
+ const kc=(T.__m3cm&&CMON)?.915:1,mats=[0,1,2,3].map(k=>{const t=new T.CanvasTexture(c);t.repeat.set(.25,1);t.offset.set(k*.25,0);t.anisotropy=4;const m=new T.MeshLambertMaterial({map:t,alphaTest:.5,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});m.color.setScalar(kc);return m});
  return FACES[key]={geo:FACEGEO,mats}}
 /* vlasy z prameňov (v276): pramene rastú z temena po tvare hlavy k línii vlasov; dlhé vlasy po bokoch a vzadu padajú
    za plecia na chrbát. Každý prameň je plochý pásik so zúženým koncom, s vlastným odtieňom a svetlejšou špičkou. Súradnice sú okolo stredu hlavy. */
@@ -541,6 +538,45 @@ function bodyW(L,G0,W,BL,HP){const HG=[G0.head,G0.hair,G0.hairL,G0.bowl,G0.beard
  for(const pt of L){const P=pt[2];if(HG.includes(pt[0])||P[1]>1.69||(P[1]>1.5&&P[2]>.09&&Math.abs(P[0])<.16))continue;
   const bk=BL*Math.exp(-Math.pow((P[1]-1.1)/.17,2)),hk=HP*Math.exp(-Math.pow((P[1]-.93)/.14,2)),sx=W*(1+.08*bk+.1*hk),sz=wz*(1+.2*bk+.06*hk),S0=pt[3]||[1,1,1],dz=P[2]<-.1?0:.05*bk+(P[2]>.12?.05*bk:0);
   pt[2]=[P[0]*sx,P[1],P[2]*wz+dz];pt[3]=[S0[0]*sx,S0[1],S0[2]*sz]}}
+/* pramene (v292): spoločný stavebník pásikov – každý prameň je zoznam bodov, šírka, hrúbka a odtieň. Súradnice okolo stredu hlavy (y bez 1,08) */
+function ribG(list){const P=[],C=[],I=[],d=new T.Vector3(),nr=new T.Vector3(),sd=new T.Vector3();
+ for(const r of list){const pts=r.p,N=pts.length;if(N<2)continue;const base=P.length/3;
+  for(let i=0;i<N;i++){const q=pts[i],q2=pts[Math.min(N-1,i+1)],q1=pts[Math.max(0,i-1)];d.set(q2[0]-q1[0],q2[1]-q1[1],q2[2]-q1[2]).normalize();if(r.n)nr.set(r.n[0],r.n[1],r.n[2]);else nr.set(q[0],q[1]*.4,q[2]);nr.normalize();sd.crossVectors(d,nr).normalize();
+   const f=i/(N-1),w=r.w*(1-(r.tip==null?.75:r.tip)*f*f),th=(r.t||.006)*(1-.5*f),g=r.s*(.82+.3*f);
+   [[sd.x*w,sd.y*w,sd.z*w],[nr.x*th,nr.y*th,nr.z*th],[-sd.x*w,-sd.y*w,-sd.z*w]].forEach(o=>{P.push(q[0]+o[0],q[1]+o[1],q[2]+o[2]);C.push(g)})}
+  for(let i=0;i<N-1;i++)for(let j=0;j<3;j++){const a=base+i*3+j,b=base+i*3+(j+1)%3;I.push(a,a+3,b,b,a+3,b+3)}}
+ const g=new T.BufferGeometry();g.setAttribute("position",new T.Float32BufferAttribute(P,3));g.setAttribute("color",new T.Float32BufferAttribute(C,1));g.setIndex(I);g.computeVertexNormals();return g}
+/* brada a fúzy: korene na tvarovanej tvári, pramene idú po tvári dolu (krátka brada), dlhá brada sa pod bradou zbieha do špičky; fúzy od nosa do strán a dolu */
+function beardGeo(key,q,st,vr){const k="bd"+key+"|"+st+"|"+vr;if(HEADS[k])return HEADS[k];const R=.2028;let rs=911+vr*577+st*31;const rnd=()=>{rs=(rs*16807)%2147483647;return rs/2147483647};
+ const surf=(x,y,z,o)=>{const l=Math.hypot(x,y,z);x/=l;y/=l;z/=l;const Q=sculpt(x,y,z,q);return[Q[0]*R*o,Q[1]*R*o,Q[2]*R*o]},L=[];
+ if(st===2||st===3){const n=st===3?170:140,ld=st===3?.5:.26;
+  for(let i=0;i<n;i++){const x=(rnd()*2-1)*.82,y=-.18-rnd()*.6,z2=1-x*x-y*y;if(z2<.03)continue;const z=Math.sqrt(z2),ax=Math.abs(x);
+   if(y>-.33&&ax<.5)continue;if(ax<.23&&y>-.5&&y<-.32)continue;const pts=[],S=5,sh=.72+rnd()*.32;let lx=x,ly=y,lz=z,last=null;
+   for(let j=0;j<=S;j++){const f=j/S,yy=y-ld*f,xx=st===3?x*(1-.35*f):x;if(yy<-.86){break}const zz=Math.sqrt(Math.max(.02,1-xx*xx-yy*yy));last=surf(xx,yy,zz,1.015+.06*f+(st===3?.04*f:0));pts.push(last)}
+   if(st===3&&last){const drop=.11+rnd()*.05,cx=last[0]*.45;for(let j=1;j<=3;j++){const f=j/3;pts.push([last[0]+(cx-last[0])*f,last[1]-drop*f,last[2]+.012*f])}}
+   L.push({p:pts,w:.011+rnd()*.006,t:.005,s:sh})}}
+ /* fúzy */
+ if(st>=2){const n=st===4?60:44,dn=st===4?.34:.16,sp=st===4?.3:.16;for(let i=0;i<n;i++){const sg=i%2?1:-1,x0=sg*(.025+rnd()*.17),y0=-.27-rnd()*.05,pts=[];
+  for(let j=0;j<=4;j++){const f=j/4,xx=x0+sg*sp*f*f,yy=y0-dn*f*f-.02*f,zz=Math.sqrt(Math.max(.05,1-xx*xx-yy*yy));pts.push(surf(xx,yy,zz,1.03+.012*f))}L.push({p:pts,w:.009+rnd()*.005,t:.005,s:.75+rnd()*.3})}}
+ return HEADS[k]=ribG(L)}
+/* vrkoč z troch prameňov okolo osi: c(s) stred, a,b kolmé smery, n závitov */
+function braidL(L,c,a,b,M,n,R,w,sh){for(let k=0;k<3;k++){const pts=[];for(let i=0;i<=M;i++){const s=i/M,ph=s*n*6.2832+k*2.094,C0=c(s),r=R*(1-.25*s);pts.push([C0[0]+a[0]*Math.cos(ph)*r+b[0]*Math.sin(2*ph)*r*.5,C0[1]+a[1]*Math.cos(ph)*r+b[1]*Math.sin(2*ph)*r*.5,C0[2]+a[2]*Math.cos(ph)*r+b[2]*Math.sin(2*ph)*r*.5])}L.push({p:pts,w,t:.008,s:sh*(k===1?.9:1),tip:.2})}}
+function updoGeo(kind,vr){const k="up"+kind+"|"+vr;if(HEADS[k])return HEADS[k];const L=[],Y=v=>(v-1.84)/1.08;
+ if(kind==="braids")[-.19,.19].forEach(x=>braidL(L,s=>[x*(1-.1*s),Y(1.71)-.39*s/1.08*1.08,.06-.01*s],[1,0,0],[0,0,1],60,6,.026,.016,.95));
+ else if(kind==="crown")braidL(L,s=>{const a=s*6.2832;return[Math.sin(a)*.172,Y(1.985)-.02*Math.cos(a),Math.cos(a)*.172-.02]},[0,1,0],[0,0,0],140,18,.03,.018,.95);
+ else if(kind==="bun"){const cy=Y(1.93),cz=-.2;for(let r=0;r<9;r++){const pts=[],rr=.1*Math.sin((r+1)/10*Math.PI),yy=cy+.09*Math.cos((r+1)/10*Math.PI);for(let i=0;i<=16;i++){const a=i/16*6.2832+r*.7;pts.push([Math.sin(a)*rr,yy,cz+Math.cos(a)*rr*.95])}L.push({p:pts,w:.022,t:.01,s:.85+(r%3)*.08,tip:0,n:null})}}
+ return HEADS[k]=ribG(L)}
+/* ruka (v294): 0 voľná, 1 päsť / zovretie, 2 otvorená dlaň, 3 ukazovák. Dlaň hľadí k telu, prsty sú vpredu (z), cs = strana tela */
+function handL(G0,DG,hc2,cs,pose,sleeve){const hd2=mixHex(hc2,"#6a3a28",.16),L=[[G0.hand,hc2,[cs*.004,-.37,.004],[.5,.82,.78]],[DG.sph,hc2,[cs*.004,-.345,0],[.04,.045,.052]]],y1=-.418;
+ [[.034,.042],[.012,.048],[-.01,.046],[-.031,.037]].forEach(([fz,l],i)=>{const md=pose===3?(i===0?2:1):pose;
+  if(md===1){L.push([DG.sph,hc2,[cs*.014,y1-.014,fz],[.0125,.02,.0125],[0,0,cs*1.1]],[DG.sph,hd2,[cs*.006,y1-.004,fz],[.013,.009,.0128]],[DG.sph,hc2,[cs*.028,y1-.008,fz],[.011,.015,.011],[0,0,cs*2.3]])}
+  else if(md===2){const fz2=fz*1.2;L.push([DG.sph,hc2,[cs*.001,y1-l*.48,fz2],[.012,l*.5+.006,.012]],[DG.sph,hd2,[cs*.004,y1-.004,fz2],[.013,.009,.0128]],[DG.sph,hc2,[cs*.002,y1-l*.95-.018,fz2],[.0105,.022,.0105],[0,0,cs*.12]])}
+  else L.push([DG.sph,hc2,[cs*.002,y1-l*.45,fz],[.0125,l*.5+.006,.0125]],[DG.sph,hd2,[cs*.006,y1-.004,fz],[.013,.009,.0128]],[DG.sph,hc2,[cs*.013,y1-l*.9-.017,fz],[.011,.022,.011],[0,0,cs*.55]])});
+ if(pose===1||pose===3)L.push([DG.sph,hc2,[cs*.02,-.392,.046],[.014,.03,.015],[.6,0,cs*.7]],[DG.sph,hc2,[cs*.032,-.414,.035],[.012,.02,.012],[.9,0,cs*1.1]]);
+ else if(pose===2)L.push([DG.sph,hc2,[cs*.012,-.385,.058],[.014,.032,.015],[.85,0,cs*.2]],[DG.sph,hc2,[cs*.014,-.408,.08],[.012,.021,.012],[1.05,0,cs*.2]]);
+ else L.push([DG.sph,hc2,[cs*.018,-.388,.05],[.014,.032,.015],[.45,0,cs*.35]],[DG.sph,hc2,[cs*.028,-.418,.064],[.012,.021,.012],[.2,0,cs*.5]]);
+ if(sleeve)L.push([DG.bell,sleeve,[0,-.26,0],[.12,.16,.12]]);return L}
+function setHand(arm,pose){const ud=arm&&arm.userData;if(!ud||!ud.hp||ud.hpo===pose)return;ud.hpo=pose;ud.hm.geometry=ud.hp[pose]}
 /* odev vo vrstvách (v272): zástera, náprsenka, lem, gombíky, kožušinový golier a pokrývky hlavy; časti nad 1,69 m idú do hlavy */
 function dressL(L,dr,o,G0,DG){const PI=Math.PI,dkc=(c,t)=>mixHex(c,"#000000",t||.3),LIN="#efe9dc";
  if(dr.ap){if(o.fem)L.push([DG.apronF,dr.ap,[0,.6,0]]);else if(!o.robe){L.push([DG.apronM,dr.ap,[0,.72,0],[1,1,1],[0,0,0],0,"apron"]);if(dr.bib)L.push([DG.box,dr.ap,[0,1.2,.25],[.24,.3,.022]],[DG.box,dkc(dr.ap),[0,1.345,.262],[.24,.018,.012]])}}
@@ -588,6 +624,20 @@ function noseGeo(key,q,fem){const k="n"+key;if(HEADS[k])return HEADS[k];const P=
  [[.3,.85,1.15,.85],[.6,.55,1.25,.72],[1,.05,1.1,.6]].forEach(([f,hk,wk,sh])=>{const h=(.003+.036)*big,w=(.02+.006)*big;row(.26-.38-.045*f,h*hk,w*wk,sh)});
  const nr=P.length/3/NA;for(let r=0;r<nr-1;r++)for(let i=0;i<NA-1;i++){const a=r*NA+i,b=a+1,c=a+NA,d=c+1;I.push(a,c,b,b,c,d)}
  const g=new T.BufferGeometry();g.setAttribute("position",new T.Float32BufferAttribute(P,3));g.setAttribute("color",new T.Float32BufferAttribute(C,1));g.setIndex(I);g.computeVertexNormals();return HEADS[k]=g}
+/* oči (v290): očná guľa (sploštená do šírky) vystupuje z jamky tesne nad povrch tváre; dúhovka je v textúre a pohľad sa robí posunom textúry,
+   takže obe oči sú jedno kreslenie. Viečka sú časti gule o kúsok väčšej: horné zhora, dolné zdola; stavy otvorené, úsmev (privreté), zatvorené. */
+function eyeGeo(key,q){const k="e"+key;if(HEADS[k])return HEADS[k];const RF=.2028,rE=.027,out=.0095,E=[];
+ [-1,1].forEach(sd=>{let x=sd*.34,y=.134,z=.93;const l=Math.hypot(x,y,z);x/=l;y/=l;z/=l;const P=sculpt(x,y,z,q),c=rE-out;E.push([P[0]*RF-x*c,.18+P[1]*RF*1.08-y*c,P[2]*RF-z*c])});
+ const merge=gs=>{const P=[],N=[],U=[],I=[];let b=0;for(const g of gs){const pa=g.attributes.position,na=g.attributes.normal,ua=g.attributes.uv;for(let i=0;i<pa.count;i++){P.push(pa.getX(i),pa.getY(i),pa.getZ(i));N.push(na.getX(i),na.getY(i),na.getZ(i));U.push(ua.getX(i),ua.getY(i))}const ix=g.index;for(let i=0;i<ix.count;i++)I.push(b+ix.getX(i));b+=pa.count}
+  const o=new T.BufferGeometry();o.setAttribute("position",new T.Float32BufferAttribute(P,3));o.setAttribute("normal",new T.Float32BufferAttribute(N,3));o.setAttribute("uv",new T.Float32BufferAttribute(U,2));o.setIndex(I);return o};
+ const ball=merge(E.map(e=>{const g=new T.SphereGeometry(rE,18,12);g.scale(1.3,1,1);g.translate(e[0],e[1],e[2]);return g}));
+ const rL=rE*1.07,lid=st=>{const up=[.4,.18,-.3][st],lo=[.45,.2,.3][st],L=[];E.forEach(e=>{const g1=new T.SphereGeometry(rL,16,7,0,6.2832,0,Math.PI/2-up),g2=new T.SphereGeometry(rL*1.025,16,1,0,6.2832,Math.PI/2-up-.08,.08),g3=new T.SphereGeometry(rL,16,5,0,6.2832,Math.PI/2+lo,Math.PI/2-lo);
+  [[g1,null],[g2,"#2a1a12"],[g3,null]].forEach(([g,c])=>{g.scale(1.3,1,1);L.push([g,c,[e[0],e[1],e[2]],[1,1,1],[0,0,0],1])})});return L};
+ return HEADS[k]={E,ball,lidL:[0,1,2].map(lid)}}
+const EYET={};
+function eyeMat(ec){const k=ec||"#4a3220";let base=EYET[k];if(!base){const c=document.createElement("canvas");c.width=128;c.height=64;const x=c.getContext("2d");x.fillStyle="#ece6dc";x.fillRect(0,0,128,64);
+  x.save();x.translate(32,32);x.scale(1/1.3,1);const g=x.createRadialGradient(0,0,0,0,0,8.6);g.addColorStop(0,mixHex(k,"#ffffff",.15));g.addColorStop(.7,k);g.addColorStop(1,mixHex(k,"#000000",.55));x.fillStyle=g;x.beginPath();x.arc(0,0,8.6,0,6.2832);x.fill();x.fillStyle="#0b0705";x.beginPath();x.arc(0,0,3.8,0,6.2832);x.fill();x.restore();base=EYET[k]=c}
+ const t=new T.CanvasTexture(base);t.wrapS=t.wrapT=T.RepeatWrapping;return new T.MeshPhongMaterial({map:t,shininess:80,specular:new T.Color(.4,.4,.4)})}
 function faceGeo(key,q){const k="f"+key;return HEADS[k]||(HEADS[k]=sculptGeo(new T.SphereGeometry(.2028,30,22,Math.PI/2-1.1,2.2,.5,1.75),.2028,q,false))}
 /* ohyb lakťov a kolien (v270): počíta sa v chôdzi pred vykreslením, aby ho kostra stihla prevziať */
 function bendJ(u){try{for(const q of u.arms){const ud=q.userData;if(!ud.ua)continue;const t=-q.rotation.x,dl=.08+(t>0?.4*Math.sin(Math.min(Math.PI,t)):0);ud.ua.rotation.x=dl;ud.fa.rotation.x=-2*dl-(ud.eb||0)}
@@ -613,30 +663,29 @@ function figure(o){const G0=figGeo(),g=new T.Group();FIGS.push(g);if(!FIGM){FIGM
   [-1,1].forEach(q=>L.push([DG.sph,skin,[q*.198,1.845,.0],[.022,.05,.034]],[DG.sph,mixHex(skin,"#8a5040",.35),[q*.207,1.845,.006],[.01,.028,.018]]));
   if(hc){const hv=((hs*3+bs+(o.fem?5:0))%4),strands=(by,vol)=>{const yb=by==null?null:+((by-1.84)/1.08).toFixed(3);if(yb==null)L.push([hairGeo(null,hv,vol||0),hc,[0,1.84,0],[1,1.08,1],[0,0,0],1]);else L.push([hairGeo(yb,hv,vol||0,0),hc,[0,1.84,0],[1,1.08,1],[0,0,0],1],[hairGeo(yb,hv,vol||0,1),hc,[0,1.84,0],[1,1.08,1],[0,0,0],1,"hairB"])},cap=()=>COV?0:strands(null,0),hd=mixHex(hc,"#000000",.18);
    if(o.fem){if(hs===3){L.push([G0.hair,"#f2ede0",[0,1.86,-.012],[1.04,1.08,1.08],[-.3,0,0]],[G0.hairL,"#f2ede0",[0,1.72,-.01],[1.03,.6,1.03]],[DG.box,hc,[0,1.965,.165],[.2,.02,.03]])}
-    else{if(COV);else if(hs===0)strands(1.4,1);else if(hs===1){strands(1.66,0);[-.19,.19].forEach(x=>{for(let i=0;i<5;i++)L.push([DG.sph,i%2?hd:hc,[x,1.68-i*.085,.06],[.05,.055,.05]]);L.push([DG.sph,"#b8362c",[x,1.27,.06],[.03,.03,.03]])})}
-     else if(hs===2)strands(null,0),L.push([DG.sph,hc,[0,1.93,-.2],[.11,.11,.1]],[DG.tor,hd,[0,1.93,-.2],[.09,.09,.2],[0,0,0]]);
-     else{strands(null,0);for(let i=0;i<12;i++){const a=i/12*6.283;L.push([DG.sph,i%2?hd:hc,[Math.sin(a)*.17,1.985+Math.cos(a)*-.02,Math.cos(a)*.17-.02],[.05,.045,.05]])}}}}
+    else{if(COV);else if(hs===0)strands(1.4,1);else if(hs===1){strands(1.66,0);L.push([updoGeo("braids",hv),hc,[0,1.84,0],[1,1.08,1],[0,0,0],1]);[-.19,.19].forEach(x=>L.push([DG.sph,"#b8362c",[x*.9,1.31,.05],[.026,.026,.026]]))}
+     else if(hs===2)strands(null,0),L.push([DG.sph,hd,[0,1.93,-.2],[.088,.088,.08]],[updoGeo("bun",hv),hc,[0,1.84,0],[1,1.08,1],[0,0,0],1]);
+     else{strands(null,0);L.push([updoGeo("crown",hv),hc,[0,1.84,0],[1,1.08,1],[0,0,0],1])}}}
    else{if(hs===4){L.push([G0.hairL,hc,[0,1.8,-.012],[1.04,.36,1.04]])}else{if(hs!==1)cap();if(hs===1&&!COV)strands(1.55,1);else if(hs===2)L.push([G0.bowl,hc,[0,1.82,-.012]],[DG.sph,hc,[0,1.962,.142],[.15,.034,.05]]);else if(hs===3)for(let k=0;k<2;k++)for(let i=0;i<9;i++){const a=i/9*6.283+k*.35,rr=k?.13:.2,y=k?2.02:1.93;if(!k&&Math.cos(a)>.55)continue;L.push([DG.sph,i%2?hd:hc,[Math.sin(a)*rr,y,Math.cos(a)*rr-.02],[.062,.058,.062]])}}
-    if(bs===1)L.push([G0.beard,mixHex(skin,hc,.38),[0,1.735,.07],[1.18,.78,.98]]);else if(bs===2)L.push([G0.beard,hc,[0,1.72,.1],[1.05,.85,.8]]);else if(bs===3)L.push([G0.beard,hc,[0,1.72,.1],[1.08,.9,.82]],[DG.cone,hc,[0,1.56,.13],[.1,.3,.07],[Math.PI,0,0]]);
-    if(bs>=2)L.push([DG.box,hc,[0,1.785,.19],[.11,.022,.02]]);if(bs===4)L.push([DG.box,hc,[0,1.785,.19],[.13,.026,.024]],[DG.sph,hc,[-.075,1.775,.18],[.022,.028,.018]],[DG.sph,hc,[.075,1.775,.18],[.022,.028,.018]])}}dressL(L,dr,o,G0,DG);if(BW!==1||BLY||BHP)bodyW(L,G0,BW,BLY,BHP);return L});
- {const ag=o.age==null?30:o.age|0,fk=["f",skin,ec,hc||"",o.fem?1:0,ag>55?2:ag>38?1:0].join("|"),F=faceSet(fk,{skin,ec,hc:hc||"#5a3a20",fem:!!o.fem,age:ag>55?60:ag>38?45:25}),fm=new T.Mesh(faceGeo(hk,hq),F.mats[0]);fm.position.y=.18;fm.scale.set(1,1.08,1);HD.add(fm);g.__face={m:fm,F}}
+    if(bs===1)L.push([G0.beard,mixHex(skin,hc,.38),[0,1.735,.07],[1.18,.78,.98]]);else if(bs>=2)L.push([beardGeo(hk,hq,bs,hv),bs===2?mixHex(hc,"#000000",.08):hc,[0,1.84,0],[1,1.08,1],[0,0,0],1]);if(bs>=2&&bs<4)L.push([G0.beard,mixHex(hc,"#000000",.25),[0,1.715,.085],[.95,.7,.72]]);
+    }}dressL(L,dr,o,G0,DG);if(BW!==1||BLY||BHP)bodyW(L,G0,BW,BLY,BHP);return L});
+ {const ag=o.age==null?30:o.age|0,fk=["f",skin,ec,hc||"",o.fem?1:0,ag>55?2:ag>38?1:0].join("|"),F=faceSet(fk,{skin,ec,hc:hc||"#5a3a20",fem:!!o.fem,age:ag>55?60:ag>38?45:25}),fm=new T.Mesh(faceGeo(hk,hq),F.mats[0]);fm.position.y=.18;fm.scale.set(1,1.08,1);HD.add(fm);g.__face={m:fm,F}
+  try{const EG=eyeGeo(hk,hq),em=eyeMat(ec),eb=new T.Mesh(EG.ball,em);HD.add(eb);const lc=mixHex(skin,"#8a5040",.1),LG=[0,1,2].map(st=>{const kk="lid"+st+"|"+hk+"|"+lc;return FGC[kk]||(FGC[kk]=mergeParts(EG.lidL[st].map(pt=>{const q=pt.slice();q[1]=pt[1]||lc;return q})))}),lm=new T.Mesh(LG[0],FIGM);HD.add(lm);g.__eyes={b:eb,l:lm,LG,st:0,tex:em.map}}catch(e){console.warn("3D oči",e)}}
  if(!o.fem&&!o.robe)[-.13,.13].forEach(x=>{const q=new T.Group();q.position.set(x*LW,.88,0);g.add(q);/* koleno (v151): stehno a predkolenie; ohyb sa dopočíta z q.rotation.x */
   const sh=new T.Group();sh.position.set(0,-KNEE,0);q.add(sh);
   mesh(cached(["ll3",BLD.clog?1:0,legc,feet,bt.tall?1:0,bt.beak?1:0,bt.gold?1:0,bt.spur?1:0].join("|"),()=>{const L=shoeL(DG,feet,0,-.83+KNEE,.06,BLD.clog&&!bt.tall);if(bt.tall)L.push([DG.cyl,feet,[0,-.62+KNEE,0],[.108,.38,.108]]);if(bt.beak)L.push([DG.cone,feet,[0,-.84+KNEE,.3],[.05,.2,.04],[Math.PI/2,0,0]]);if(bt.gold)L.push([DG.cyl,"#e2b85a",[0,-.44+KNEE,0],[.113,.03,.113]]);if(bt.spur)L.push([DG.box,"#e2b85a",[0,-.8+KNEE,-.13],[.025,.025,.12]],[DG.sph,"#e2b85a",[0,-.8+KNEE,-.2],[.03,.03,.012]]);return L}),sh);
   q.userData.sh=sh;legsP.push(q)});
  const arms=[-.37,.37].map(x=>{const q=new T.Group();q.position.set(x*AW,1.54,0);q.rotation.z=x<0?-.08:.08;g.add(q);
   /* lakeť (v149): rameno a predlaktie; smer ruky určuje q.rotation.x, ohyb sa dopočíta */
-  const ua=new T.Group(),fa=new T.Group();fa.position.set(0,-ELB,0);q.add(ua);ua.add(fa);mesh(cached(["al3",o.body,o.glove||skin,dr.ws?1:0,x<0?1:0].join("|"),()=>{const hc2=o.glove||skin,hd2=mixHex(hc2,"#6a3a28",.16),cs=x<0?1:-1,L=[[G0.hand,hc2,[cs*.004,-.37,.004],[.5,.82,.78]],[DG.sph,hc2,[cs*.004,-.345,0],[.04,.045,.052]]];
-   [[.034,.042],[.012,.048],[-.01,.046],[-.031,.037]].forEach(([fz,l],i)=>{const y1=-.418;L.push([DG.sph,hc2,[cs*.002,y1-l*.45,fz],[.0125,l*.5+.006,.0125]],[DG.sph,hd2,[cs*.006,y1-.004,fz],[.013,.009,.0128]],[DG.sph,hc2,[cs*.013,y1-l*.9-.017,fz],[.011,.022,.011],[0,0,cs*.55]])});
-   L.push([DG.sph,hc2,[cs*.018,-.388,.05],[.014,.032,.015],[.45,0,cs*.35]],[DG.sph,hc2,[cs*.028,-.418,.064],[.012,.021,.012],[.2,0,cs*.5]]);if(dr.ws)L.push([DG.bell,o.body,[0,-.26,0],[.12,.16,.12]]);return L}),fa);
-  q.userData.ua=ua;q.userData.fa=fa;const add0=q.add.bind(q);q.add=function(ob){if(ob&&ob.position&&ob.position.y<-.2){ob.position.y+=ELB;fa.add(ob)}else ua.add(ob);return q};
+  const ua=new T.Group(),fa=new T.Group();fa.position.set(0,-ELB,0);q.add(ua);ua.add(fa);const hp=[0,1,2,3].map(pz=>cached(["al4",o.body,o.glove||skin,dr.ws?1:0,x<0?1:0,pz].join("|"),()=>handL(G0,DG,o.glove||skin,x<0?1:-1,pz,dr.ws?o.body:null)));q.userData.hp=hp;q.userData.hm=mesh(hp[0],fa);q.userData.hpo=0;
+  q.userData.ua=ua;q.userData.fa=fa;const add0=q.add.bind(q);q.add=function(ob){if(ob&&ob.position&&ob.position.y<-.2){ob.position.y+=ELB;fa.add(ob);try{setHand(q,1)}catch(e){}}else ua.add(ob);return q};
   ua.rotation.x=.08;fa.rotation.x=-.16;return q});
  /* hladké telo na kostiach */
  try{const TB=new T.Group();g.add(TB);const bones=[TB,HD,arms[0].userData.ua,arms[0].userData.fa,arms[1].userData.ua,arms[1].userData.fa];legsP.forEach(q=>bones.push(q,q.userData.sh));g.updateMatrixWorld(true);
   const key=["sk",o.body,skin,legc,o.fem?1:0,legsP.length,dr.sh,dr.slv,dr.rl?1:0,dr.pc,bldK].join("|"),geo=FGC[key]||(FGC[key]=skinBody(bones,{body:o.body,skin,legc,fem:!!o.fem,legs:legsP.length>0,bw:BW,belly:BLY,hips:BHP,shirt:dr.sh,slv:dr.slv,rl:!!dr.rl,pc:dr.pc}));
   if(!FIGSK){FIGSK=rimify(new T.MeshLambertMaterial({vertexColors:true,side:T.DoubleSide,map:weaveTex(),skinning:true}));FIGSK.color.setScalar(1.07)}
   const sm=new T.SkinnedMesh(geo,FIGSK);sm.castShadow=true;sm.frustumCulled=false;g.add(sm);g.updateMatrixWorld(true);sm.bind(new T.Skeleton(bones),sm.matrixWorld)}catch(e){console.warn("3D telo",e)}
- g.userData={arms,legsP,head:HD,face:g.__face||null,skirt:g.__sk||null,sw:g.__sw||null,ph:Math.random()*6,st:{amp:.92+Math.random()*.16,rate:.94+Math.random()*.12,arm:1,hunch:0,stiff:0}};{const rg=rigify(g),bw=o.bld?1:.93+Math.random()*.15;rg.scale.set(bw,.95+Math.random()*.09,(bw+1)/2)}return g}
+ g.userData={arms,legsP,head:HD,face:g.__face||null,eyes:g.__eyes||null,pc:o.body,skirt:g.__sk||null,sw:g.__sw||null,ph:Math.random()*6,st:{amp:.92+Math.random()*.16,rate:.94+Math.random()*.12,arm:1,hunch:0,stiff:0}};{const rg=rigify(g),bw=o.bld?1:.93+Math.random()*.15;rg.scale.set(bw,.95+Math.random()*.09,(bw+1)/2)}return g}
 /* kostra (v263): telo v jednej skupine, ktorú chôdza dvíha, kolíše a nakláňa; g.add pridáva do nej, aby sa hýbali aj klobúky a náradie */
 /* hlava (v265): časti hlavy (tvár, vlasy, brada) idú do skupiny HD otočnej na krku */
 const HEADY=1.66;
@@ -656,25 +705,26 @@ function gestT(m,t,sd,dt,spk){const u=m.userData,A=u&&u.arms;if(!A)return;const 
   T6=k===0?[-.55-.2*Math.max(0,w1),.28,1.15+.3*w2,-.18,0,.5]:k===1?[-1.3,.12,.12,-.1,0,.3]:k===2?[-.28,.5,1.35,-.28,.5,1.35]:[-.5-.15*w1,.22,1+.35*w2,-.45-.15*w2,.22,1+.3*w1];
   if(k===2){const e=Math.sin((ph-seg)*Math.PI);T6=T6.map(v=>v*Math.max(0,e))}}
  else T6=Math.floor(t/5+sd)%2?[-.16,-.2,.95,-.16,-.2,.95]:[0,0,.1,0,0,.1];
+ {let hr=0,hl=0;if(spk){const k2=Math.floor(Math.abs(Math.sin(Math.floor(t/2.6+sd*1.37)*12.9898+sd*78.233)*43758.5453)%1*4);hr=k2===1?3:2;hl=k2>=2?2:0}else if(T6[0]<-.1)hr=hl=1;setHand(A[1],hr);setHand(A[0],hl)}
  const kk=Math.min(1,dt*5);for(let j=0;j<6;j++)G.v[j]+=(T6[j]-G.v[j])*kk;
  A[1].rotation.x=G.v[0];A[1].rotation.z=.08+G.v[1];A[1].userData.eb=G.v[2];A[0].rotation.x=G.v[3];A[0].rotation.z=-.08-G.v[4];A[0].userData.eb=G.v[5];try{bendJ(u)}catch(e){}}
 /* náklad chodcov (v286): vrece na pleci alebo jarmo s vedrami; ruky ho pridržiavajú */
 function carryL(m,kind,M){const u=m.userData,A=u.arms,mk=(geo,c,x,y,z,par)=>{const q=new T.Mesh(geo,M(c));q.position.set(x,y,z);q.castShadow=true;(par||m).add(q);return q};
  if(kind==="sack"){const sk=mk(new T.SphereGeometry(1,10,8),"#c8b48a",.2,1.69,-.04);sk.scale.set(.17,.15,.27);sk.rotation.z=-.3;mk(new T.CylinderGeometry(.03,.05,.08,6),"#a89060",.24,1.695,.22).rotation.x=1.3;
-  u.carry=()=>{A[1].rotation.x=-1.05;A[1].rotation.z=.32;A[1].userData.eb=2.05;bendJ(u)}}
+  setHand(A[1],1);u.carry=()=>{A[1].rotation.x=-1.05;A[1].rotation.z=.32;A[1].userData.eb=2.05;bendJ(u)}}
  else if(kind==="yoke"){const wd="#7a5a34",bc="#6a4a2c";mk(new T.BoxGeometry(1.3,.05,.07),wd,0,1.63,-.04);[-1,1].forEach(sx=>{mk(new T.BoxGeometry(.012,.62,.012),"#5a4630",sx*.62,1.31,-.04);const b=mk(new T.CylinderGeometry(.13,.11,.22,10),bc,sx*.62,.92,-.04);mk(new T.CylinderGeometry(.122,.122,.01,10),"#5a7a8a",sx*.62,1.025,-.04);mk(new T.TorusGeometry(.13,.012,4,12),"#3a3a3a",sx*.62,.98,-.04).rotation.x=Math.PI/2});
-  u.carry=()=>{A[0].rotation.x=-.12;A[1].rotation.x=-.12;A[0].rotation.z=-.42;A[1].rotation.z=.42;A[0].userData.eb=A[1].userData.eb=.35;bendJ(u)}}}
+  setHand(A[0],1);setHand(A[1],1);u.carry=()=>{A[0].rotation.x=-.12;A[1].rotation.x=-.12;A[0].rotation.z=-.42;A[1].rotation.z=.42;A[0].userData.eb=A[1].userData.eb=.35;bendJ(u)}}}
 /* kývanie (v285): pružina s oneskorením; cieľ dáva rýchlosť chôdze (látka sa zanáša dozadu), krok (poskakovanie, kolená pod zásterou),
    otáčanie (odhodí do boku) a vietor. Ďalej ako 30 m sa nepočíta. */
 function swayU(g,u,dt,t,w,run,ph,vl,dP){const S=u.sw;if(!S||!(dt>0))return;if(dP>30){if(!u.swOff){u.swOff=1;for(const q of S){q.p.rotation.x=q.p.rotation.z=0;q.a=q.v=q.az=q.vz=0}}return}u.swOff=0;
- const h=Math.min(dt,.05),ry=g.rotation.y;let dy=u.ry0==null?0:ry-u.ry0;while(dy>Math.PI)dy-=6.2832;while(dy<-Math.PI)dy+=6.2832;u.ry0=ry;const tr=Math.max(-3,Math.min(3,dy/h));
+ const h=Math.min(dt,.05),ry=g.rotation.y;let dy=u.ry0==null||!isFinite(u.ry0)?0:ry-u.ry0;while(dy>Math.PI)dy-=6.2832;while(dy<-Math.PI)dy+=6.2832;u.ry0=ry;const tr=Math.max(-3,Math.min(3,dy/h));
  const wind=.035*Math.sin(t*1.1+u.ph*3)+.02*Math.sin(t*2.7+u.ph),wz=.025*Math.sin(t*.8+u.ph*2),A=Math.min(.74,.2+vl*.085)*w;
  for(const q of S){let tx,tz,K=26,D=6;
   if(q.k==="apron"){K=60;D=9;tx=.03*w+Math.min(.12,.02*vl)-.32*A*Math.abs(Math.sin(ph))+wind*.3;tz=.03*w*Math.cos(ph)}
   else if(q.k==="hairB"||q.k==="veil"){K=38;D=6.5;tx=Math.min(.3,.045*vl+.12*run)*w+.03*w*Math.sin(2*ph+.5)+wind*.5;tz=.045*w*Math.cos(ph)-tr*.04+wz}
   else{tx=Math.min(.38,.05*vl+.12*run)*w+.025*w*Math.sin(2*ph)+wind*.6;tz=-tr*.06+wz*1.2+.02*w*Math.cos(ph);if(q.k==="cloak"){tx*=.8;K=22}}
   q.v+=((tx-q.a)*K-q.v*D)*h;q.a+=q.v*h;q.vz+=((tz-q.az)*K-q.vz*D)*h;q.az+=q.vz*h;
-  q.a=Math.max(-.35,Math.min(.5,q.a));q.az=Math.max(-.25,Math.min(.25,q.az));q.p.rotation.x=q.a;q.p.rotation.z=q.az}}
+  if(!isFinite(q.a+q.v+q.az+q.vz)){q.a=q.v=q.az=q.vz=0}q.a=Math.max(-.35,Math.min(.5,q.a));q.az=Math.max(-.25,Math.min(.25,q.az));q.p.rotation.x=q.a;q.p.rotation.z=q.az}}
 function rigify(g){const rig=new T.Group();while(g.children.length)rig.add(g.children[0]);T.Object3D.prototype.add.call(g,rig);
  g.add=function(){for(const ob of arguments){const HD=g.userData&&g.userData.head;if(HD&&ob&&ob.position&&ob.position.y>1.7&&Math.abs(ob.position.x)<.35&&Math.abs(ob.position.z)<.35){ob.position.y-=HEADY;HD.add(ob)}else rig.add(ob)}return g};g.userData.rig=rig;return rig}
 function turnY(o,a,dt){let d=a-o.rotation.y;while(d>Math.PI)d-=6.2832;while(d<-Math.PI)d+=6.2832;o.rotation.y+=Math.abs(d)>2.6&&dt>.2?d:d*Math.min(1,dt*9)}
@@ -731,10 +781,14 @@ function idleL(g,u,rig,w,t,dt,armsFree,legsFree){const I=u.I,iw=1-w;if(!rig)retu
  const FC=u.face;if(FC){if(!I.bl||t>I.bl){I.bl=t+2.2+Math.random()*3.8;I.be=t+.13}let fr=t<I.be?1:0;
   if(u.spk!=null&&t-u.spk<.2)fr=Math.sin(t*17+u.ph)>-.1?3:0;else if(I.sm>t&&fr!==1)fr=2;if(fr!==I.fr){I.fr=fr;FC.m.material=FC.F.mats[fr]}}
  const H=u.head;if(!H)return;let look=false;
- if(dP<7&&(!u.talk||dP<3.2)){let yw=g.rotation.y+(g.parent&&g.parent.rotation?g.parent.rotation.y:0),d=Math.atan2(PLP[0]-x,PLP[1]-z)-yw;while(d>Math.PI)d-=6.2832;while(d<-Math.PI)d+=6.2832;if(Math.abs(d)<1.9){look=true;I.tg[0]=Math.max(-1.05,Math.min(1.05,d));I.tg[1]=.04;if(dP<3.2&&t-I.gr>25){I.gr=t;I.nod=t+.35;I.sm=t+3}if(dP<4.2&&!u.talk)I.sm=Math.max(I.sm||0,t+.4)}}
+ if(dP<7&&(!u.talk||dP<3.2)){let yw=g.rotation.y+(g.parent&&g.parent.rotation?g.parent.rotation.y:0),d=Math.atan2(PLP[0]-x,PLP[1]-z)-yw;while(d>Math.PI)d-=6.2832;while(d<-Math.PI)d+=6.2832;if(Math.abs(d)<1.9){look=true;I.dRaw=d;I.tg[0]=Math.max(-1.05,Math.min(1.05,d));I.tg[1]=.04;if(dP<3.2&&t-I.gr>25){I.gr=t;I.nod=t+.35;I.sm=t+3}if(dP<4.2&&!u.talk)I.sm=Math.max(I.sm||0,t+.4)}}
  if(!look&&t>I.nl){I.nl=t+2.5+Math.random()*4.5;const m=u.talk?.25:u.isMe?.35:.65;I.tg[0]=(Math.random()*2-1)*m;I.tg[1]=-.04+Math.random()*.14}
  const kf=1-w*.7;I.lk[0]+=(I.tg[0]*kf-I.lk[0])*Math.min(1,dt*3.2);I.lk[1]+=(I.tg[1]*kf-I.lk[1])*Math.min(1,dt*3.2);
- const nk=(t-I.nod)/.8,nod=nk>0&&nk<1?.34*Math.sin(Math.PI*nk):0,ha=u.hadd||[0,0];H.rotation.y=I.lk[0]+ha[1];H.rotation.x=I.lk[1]+nod+ha[0]}
+ const nk=(t-I.nod)/.8,nod=nk>0&&nk<1?.34*Math.sin(Math.PI*nk):0,ha=u.hadd||[0,0];H.rotation.y=I.lk[0]+ha[1];H.rotation.x=I.lk[1]+nod+ha[0];
+ const EY=u.eyes;if(EY){const on=!!u.isMe||dP<30;if(EY.b.visible!==on)EY.b.visible=EY.l.visible=on;
+  if(on){let ty,tp;if(look){ty=I.dRaw-I.lk[0];tp=-I.lk[1]*.6}else{if(!I.sc||t>I.sc){I.sc=t+.5+Math.random()*2.2;I.sy=(Math.random()*2-1)*.22;I.sp=(Math.random()*2-1)*.07}ty=I.sy+(I.tg[0]-I.lk[0])*.8;tp=I.sp-(I.lk[1]-I.tg[1])*.5}
+   ty=Math.max(-.45,Math.min(.45,ty));tp=Math.max(-.25,Math.min(.25,tp));const ke=Math.min(1,dt*16);I.ey=(I.ey||0)+(ty-(I.ey||0))*ke;I.ep=(I.ep||0)+(tp-(I.ep||0))*ke;EY.tex.offset.set(-I.ey/6.2832,-I.ep/3.1416);
+   const st=t<(I.be||0)?2:(I.sm||0)>t?1:0;if(st!==EY.st){EY.st=st;EY.l.geometry=EY.LG[st]}}}}
 /* ---------- odev postáv podľa šatníka a krajčíra (v123) ---------- */
 let DGC=null;
 function dgeo(){if(DGC)return DGC;const arc=(rt,rb,h,a0,len,seg)=>new T.CylinderGeometry(rt,rb,h,seg||8,1,true,a0,len);
@@ -1064,7 +1118,7 @@ function open(){FIGS.length=0;const QLV=QL();let FPSN=0;
   if(DRC<=-3&&DRL<PRS.length-1){DRL++;DRC=0;setPR()}else if(DRC>=8&&DRL>0){DRL--;DRC=0;setPR()}
   else if(DRC<=-6&&DRL===PRS.length-1&&!DRW&&QLV>0){DRW=true;try{toast("3D mesto beží pomaly – skús nižšiu kvalitu grafiky (kláves Q).","info")}catch(e){}}};
  renderer.shadowMap.enabled=true;try{if(LEG())renderer.outputEncoding=T.sRGBEncoding}catch(e){}let post=null,postOn=true,postChk=0;try{postOn=localStorage.getItem("m3post")!=="0"}catch(e){}try{GL2=!!renderer.capabilities.isWebGL2}catch(e){GL2=false}
- const scene=new T.Scene();let ph=1;try{ph=todPh()}catch(e){}const night=ph===3;NIGHT3=night;try{if(!RIMU.value)RIMU.value=new T.Color();const wq=(()=>{try{return wx3()}catch(e){return"jasno"}})();RIMU.value.setRGB(...(night?[.06,.08,.14]:ph===2?[.36,.26,.17]:ph===0?[.3,.28,.27]:wq!=="jasno"?[.2,.22,.25]:[.3,.33,.37]))}catch(e){}try{post=mkPost(renderer,night?[.82,.9,1.12]:ph===2?[1.07,.96,.86]:ph===0?[1.04,.99,.94]:[1.02,1,.97])}catch(e){console.warn("3D vzhľad",e);post=null}const wxS=(()=>{try{return wx3()}catch(e){return"jasno"}})(),bad=wxS!=="jasno"&&!night;const TD=(()=>{try{return iso().TOD[night?1:ph]||iso().TOD[1]}catch(e){return null}})();
+ const scene=new T.Scene();let ph=1;try{ph=todPh()}catch(e){}const night=ph===3;NIGHT3=night;try{if(!RIMU.value)RIMU.value=new T.Color();const wq=(()=>{try{return wx3()}catch(e){return"jasno"}})();WETU.value=wq==="dazd"?1:0;SNOWU.value=wq==="sneh"?.85:S.season===3?.45:0;RIMU.value.setRGB(...(night?[.06,.08,.14]:ph===2?[.36,.26,.17]:ph===0?[.3,.28,.27]:wq!=="jasno"?[.2,.22,.25]:[.3,.33,.37]))}catch(e){}try{post=mkPost(renderer,night?[.82,.9,1.12]:ph===2?[1.07,.96,.86]:ph===0?[1.04,.99,.94]:[1.02,1,.97])}catch(e){console.warn("3D vzhľad",e);post=null}const wxS=(()=>{try{return wx3()}catch(e){return"jasno"}})(),bad=wxS!=="jasno"&&!night;const TD=(()=>{try{return iso().TOD[night?1:ph]||iso().TOD[1]}catch(e){return null}})();
  const skyT=night?"#101a34":bad?"#8a96a2":snow?"#b9c8d8":TD?TD.sky[0]:"#8cbce4",sky=night?"#2a3654":bad?(wxS==="hmla"?"#cfd4d6":"#b4bdc4"):snow?"#e2e8ee":S.season===2&&ph===1?"#f0dcc0":TD?TD.sky[1]:"#eaf2f0";
  {const c=document.createElement("canvas");c.width=4;c.height=256;const x=c.getContext("2d"),gr=x.createLinearGradient(0,0,0,256);gr.addColorStop(0,skyT);gr.addColorStop(.52,sky);gr.addColorStop(1,sky);x.fillStyle=gr;x.fillRect(0,0,4,256);scene.background=new T.CanvasTexture(c)}
  scene.fog=new T.Fog(sky,60,210);try{renderer.shadowMap.type=T.PCFSoftShadowMap}catch(e){}
@@ -1509,11 +1563,19 @@ function open(){FIGS.length=0;const QLV=QL();let FPSN=0;
   const o={g:f,d,t:[q[0],q[1]],q:[],v:1.1+(i%3)*.25,wait:i*.4,fol,home:[q[0],q[1]],k:""};folk.push(o);
   inter.push({get x(){return f.position.x},get z(){return f.position.z},r:2.6,text:`${d.head.name} z rodu ${d.name}: osloviť`,act:()=>panel(()=>talkHTML(d.id)),kind:"npc"})});
  /* ---------- živé mesto (v94): remeselníci, predavači, stráže, chodci, vozy, udalosti ---------- */
- const LAMPS=[];const X_NAV={};const life=[];{const FIGS=[],FS=new WeakSet();let nxt=0;let lodT=0;life.push((dt,t)=>{CRW.prev=CRW.cur;CRW.cur=[];
+ const LAMPS=[];const X_NAV={};const life=[];{const FIGS=[],FS=new WeakSet();let nxt=0;let lodT=0;
+  /* zástupcovia (v297): postavy ďalej ako 45 m (a všetky pri pohľade z výšky) sú jednoduchý trup s nohami a hlavou vo farbe odevu; všetky v dvoch kresleniach */
+  const PXN=320,pxB=new T.InstancedMesh(mergeParts([[new T.CylinderGeometry(.16,.27,1.15,8),"#ffffff",[0,.98,0]],[new T.CylinderGeometry(.1,.08,.42,6),"#5a5a5a",[-.1,.21,0]],[new T.CylinderGeometry(.1,.08,.42,6),"#5a5a5a",[.1,.21,0]]]),new T.MeshLambertMaterial({vertexColors:true}),PXN),
+   pxH=new T.InstancedMesh(mergeParts([[new T.SphereGeometry(.19,8,6),"#d9b38e",[0,1.75,0]],[new T.SphereGeometry(.205,8,5,0,6.3,0,1.3),"#5a4030",[0,1.79,-.01]]]),new T.MeshLambertMaterial({vertexColors:true}),PXN),pxM=new T.Matrix4(),pxC=new T.Color();
+  pxB.instanceColor=new T.InstancedBufferAttribute(new Float32Array(PXN*3).fill(1),3);[pxB,pxH].forEach(m=>{m.count=0;m.frustumCulled=false;scene.add(m)});
+  life.push((dt,t)=>{CRW.prev=CRW.cur;CRW.cur=[];
   /* postavy v diaľke (v269): nad 32 m bez tieňa a bez žmurkania, nad 75 m sa nekreslia (nie pri pohľade z výšky) */
-  if(t>lodT){lodT=t+.4;const cp=cam.position,hiV=dist>60;for(const f of FIGS){const u=f.userData,r=u.rig;if(!r)continue;const e=f.matrixWorld.elements,d=Math.hypot(cp.x-e[12],cp.z-e[14]),L2=hiV?0:d>75?2:d>32?1:0;if(u.lod===L2)continue;u.lod=L2;r.visible=L2<2;const sh=L2===0;r.traverse(o=>{if(o.isMesh)o.castShadow=sh})}}
+  if(t>lodT){lodT=t+.4;const cp=cam.position,hiV=dist>60;for(const f of FIGS){const u=f.userData,r=u.rig;if(!r)continue;const e=f.matrixWorld.elements,d=Math.hypot(cp.x-e[12],cp.z-e[14]),L2=hiV?2:d>45?2:d>32?1:0;if(u.lod===L2)continue;u.lod=L2;r.visible=L2<2;const sh=L2===0;r.traverse(o=>{if(o.isMesh)o.castShadow=sh})}}
   if(t>nxt){nxt=t+2;scene.traverse(o=>{const u=o.userData;if(u&&u.rig&&u.arms&&!FS.has(o)){FS.add(o);FIGS.push(o)}})}
-  for(let i=FIGS.length-1;i>=0;i--){const f=FIGS[i];if(!f.parent){FIGS.splice(i,1);continue}const u=f.userData;if(!f.visible||t-(u.ext==null?-9:u.ext)<.3)continue;const e=f.matrixWorld.elements;if(Math.hypot(PLP[0]-e[12],PLP[1]-e[14])>45)continue;stride(f,false,t,0,true)}})}PRE.forEach(f=>life.push(f));const dc0=(()=>{try{return DC(0)}catch(e){return"#a5312a"}})();
+  for(let i=FIGS.length-1;i>=0;i--){const f=FIGS[i];if(!f.parent){FIGS.splice(i,1);continue}const u=f.userData;if(!f.visible||t-(u.ext==null?-9:u.ext)<.3)continue;const e=f.matrixWorld.elements;if(Math.hypot(PLP[0]-e[12],PLP[1]-e[14])>45)continue;stride(f,false,t,0,true)}
+  {let pn=0;const cp=cam.position;for(const f of FIGS){const u=f.userData;if(u.lod!==2||pn>=PXN||!f.parent)continue;let vis=f.visible,pp=f.parent;while(vis&&pp&&pp!==scene){vis=pp.visible;pp=pp.parent}if(!vis)continue;const e=f.matrixWorld.elements;if(Math.hypot(cp.x-e[12],cp.z-e[14])>170)continue;
+   pxM.fromArray(e);pxB.setMatrixAt(pn,pxM);pxH.setMatrixAt(pn,pxM);pxC.set(u.pc||"#7a5a3a");pxB.setColorAt(pn,pxC);pn++}
+   pxB.count=pxH.count=pn;pxB.instanceMatrix.needsUpdate=pxH.instanceMatrix.needsUpdate=true;if(pxB.instanceColor)pxB.instanceColor.needsUpdate=true}})}PRE.forEach(f=>life.push(f));const dc0=(()=>{try{return DC(0)}catch(e){return"#a5312a"}})();
  try{const CN=CC(),ev={fair:CN.fair===S.turn||(CN.fairT||0)>=S.turn,plague:CN.plagueT!=null&&CN.plagueT>=S.turn,elec:!!S.elec,guards:(CN.raidT!=null&&CN.raidT>=S.turn-1)||(()=>{try{return edictOn("straz")}catch(e){return false}})(),mourn:(()=>{try{return mourning()}catch(e){return false}})()};
   const MC={},mc=c=>MC[c]||(MC[c]=M(c));const NG={b:new T.CylinderGeometry(.2,.32,1.05,7),h:new T.SphereGeometry(.2,8,6),hat:new T.ConeGeometry(.26,.24,7),helm:new T.SphereGeometry(.23,8,5,0,6.3,0,1.7),wh:new T.CylinderGeometry(.32,.32,.1,10)};
   const HAIR=["#5a3a20","#2b2117","#8a6a3a","#c9a24a"];let nk=0;
@@ -1528,7 +1590,7 @@ function open(){FIGS.length=0;const QLV=QL();let FPSN=0;
    if(r(6)<.18)dr.pc=HOODC[(nk+2)%6];if(r(7)<.3)dr.tr=mixHex(col,"#1a1008",.45);if(r(3)<.35)dr.bt=r(2)<.5?"#c9a24a":"#3a2a1a";if(r(10)<.2)dr.ws=1;if(r(11)<.15)dr.fu="#5a3a22";return dr};
   const bldOf=(o)=>{const r=k=>{const v=Math.sin(nk*45.164+k*12.77)*24634.633;return v-Math.floor(v)};if(o.helm)return{w:1.06};const w=[1,.9,1.1,.96,1.05,.93][nk%6];
    return{w,b:!o.fem&&r(1)<.25?.6+r(2)*.5:0,h:o.fem?.3+r(3)*.7:0,clog:r(4)<(o.tool?.45:.18)}};
-  const npc=(col,o)=>{o=o||{};nk++;const dr=o.dr||dressOf(col,o),age=o.kid?6+nk%6:18+(nk*7)%42,gr=figure({age,bld:o.bld||bldOf(o),body:col,fem:!!o.fem,hair:o.helm?null:HAIR[nk%4],beard:!o.fem&&!o.kid&&nk%3===0,legs:["#4a3a2a","#3a3a42","#5a4a32"][nk%3],dr});gr.scale.set(.92,.92,.92);
+  const npc=(col,o)=>{o=o||{};nk++;const dr=o.dr||dressOf(col,o),age=o.kid?6+nk%6:18+(nk*7)%42,gr=figure({age,bld:o.bld||bldOf(o),body:col,fem:!!o.fem,hair:o.helm?null:HAIR[nk%4],beard:!o.fem&&!o.kid&&nk%3===0,bs:o.bs!=null?o.bs:!o.fem&&!o.kid&&nk%3===0?[2,3,4,2,1][Math.floor(nk/3)%5]:0,hs:o.hs!=null?o.hs:o.fem?[0,1,2,4][Math.floor(nk/2)%4]:o.kid?0:[0,1,0,0][nk%4],legs:["#4a3a2a","#3a3a42","#5a4a32"][nk%3],dr});gr.scale.set(.92,.92,.92);
    try{const st=gr.userData.st;if(age>50){st.hunch=.07+(age-50)*.006;st.amp*=.82;st.rate*=.9;st.arm*=.7}}catch(e){}
    if(o.hat&&(o.helm||!dr.hd)){const t=new T.Mesh(o.helm?NG.helm:NG.hat,mc(o.hat));t.position.y=o.helm?1.87:2.1;if(!o.helm)t.scale.set(1.15,1,1.15);gr.add(t)}
    if(o.spear){const sp=new T.Mesh(new T.CylinderGeometry(.03,.03,2.7,4),mc("#5a3c22"));sp.position.set(.5,1.35,.1);gr.add(sp);const tp=new T.Mesh(new T.ConeGeometry(.07,.25,4),mc("#b8bcc4"));tp.position.set(.5,2.8,.1);gr.add(tp);gr.userData.arms[1].rotation.x=-.5}
@@ -1591,7 +1653,7 @@ function open(){FIGS.length=0;const QLV=QL();let FPSN=0;
   /* stráže pri bránach */
   gates.forEach((q,gi)=>{const dx=cen[0]-q[0],dz=cen[1]-q[1],dl=Math.hypot(dx,dz)||1,ux=dx/dl,uz=dz/dl;[-1,1].forEach(sg=>{const m=npc("#5a5f6a",{hat:"#9aa0a8",helm:1,spear:1});m.position.set(q[0]+ux*4.4-uz*sg*1.9,0,q[1]+uz*4.4+ux*sg*1.9);m.rotation.y=Math.atan2(ux,uz)})});
   /* chodci po uliciach */
-  const walkers=[];const nW=ev.plague?2:night?4:Math.round((7+((CN.tier||1)*3))*(snow?.6:1)*(ev.fair?1.8:1));
+  const walkers=[];const nW=ev.plague?2:night?4:Math.round(1.5*(7+((CN.tier||1)*3))*(snow?.6:1)*(ev.fair?1.8:1));
   for(let i=0;i<nW;i++){const guard=night||(ev.guards&&i<3);const m=guard?npc("#5a5f6a",{hat:"#9aa0a8",helm:1,spear:1}):npc(ROBE[(i*5+2)%8],{hat:i%4===0&&i%5!==3?"#6a4a2a":null,fem:i%3===2,kid:i%5===3});const q=way[(i*13+1)%way.length];m.position.set(q[0]+1,0,q[1]-1);if(!guard&&!night&&i%5!==3&&i%3!==2&&i%3!==1){const ck=i%7===2||i%7===4?"sack":i%7===5?"yoke":null;if(ck)try{carryL(m,ck,M)}catch(e){}}if(!guard&&i%5===3)m.scale.set(.65,.65,.65);if(night){const ln=new T.Mesh(new T.SphereGeometry(.11,8,6),new T.MeshBasicMaterial({color:"#ffcf70"}));ln.position.set(.36,1.05,.22);m.add(ln);const gs=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(blobTex()),color:"#ffb84a",transparent:true,opacity:.45,depthWrite:false,blending:T.AdditiveBlending,fog:false}));gs.scale.set(1.6,1.6,1);gs.position.copy(ln.position);m.add(gs);if(i<2){const pl5=new T.PointLight("#ffb060",1.6,11,1.6);pl5.position.set(.36,1.3,.5);m.add(pl5)}}if(!guard&&i%3===1)try{const bk=new T.Group();bk.position.set(0,-.74,.08);m.userData.arms[0].add(bk);const b1=new T.Mesh(new T.CylinderGeometry(.17,.12,.16,8),M("#b89a5a"));b1.castShadow=true;bk.add(b1);const hd=new T.Mesh(new T.TorusGeometry(.13,.015,4,10,Math.PI),M("#8a6a3a"));hd.position.y=.08;bk.add(hd);[[-.05,"#d8453a"],[.05,"#6a9a44"],[0,"#e8b030"]].forEach((c,k)=>{const f=new T.Mesh(new T.SphereGeometry(.055,6,5),M(c[1]));f.position.set(c[0],.1,k===2?.05:-.03);bk.add(f)})}catch(e){}walkers.push({g:m,t:[q[0]+1,q[1]-1],q:[],v:(!guard&&i%5===3?1.65:m.userData.carry?.85:1)*(.9+(i%4)*.22),wait:i%3,guard,home:WHOME.length?WHOME[(i*7+3)%WHOME.length]:null,k:"",hide:0})}
   WK=walkers;try{life.push(blobLife(scene))}catch(e){console.warn("3D tiene pod postavami",e)}
   /* deti, psy a mačky (v132) */
