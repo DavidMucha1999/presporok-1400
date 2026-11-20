@@ -62,7 +62,7 @@ function cardGoals(){
  </div>`}
 
 /* ---------- sprievodca začiatkom ---------- */
-function guideSteps(){
+window.guideSteps=()=>guideSteps();function guideSteps(){
  const p=P();const bs=myBall(p);
  return[
   ["Vlastni dielňu",bs.length>0,"dielne","Dielne"],

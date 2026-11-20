@@ -1668,6 +1668,7 @@ function start(data){try{const th=localStorage.getItem("presporok-theme");if(th)
     if (e.key !== "Escape" || e.repeat) return;
     var box = document.getElementById("modal");
     if (!S || (box && !box.hidden) || document.querySelector(".lens")) return;
+    if (window.P3D && (S.__demo || document.getElementById("m3d"))) return;
     if (e.target && e.target.closest && e.target.closest("input,select,textarea")) return;
     e.preventDefault(); e.stopPropagation();
     gameMenu();
@@ -7944,7 +7945,7 @@ function cardGoals(){
  </div>`}
 
 /* ---------- sprievodca začiatkom ---------- */
-function guideSteps(){
+window.guideSteps=()=>guideSteps();function guideSteps(){
  const p=P();const bs=myBall(p);
  return[
   ["Vlastni dielňu",bs.length>0,"dielne","Dielne"],
@@ -8340,7 +8341,7 @@ const setPref=v=>{try{localStorage.setItem("hbOn",v?"1":"0")}catch(e){}};
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const q=s=>document.querySelector(s);
 const txt=e=>e?e.textContent.replace(/\s+/g," ").trim():"";
-const mode=()=>{if(!hasS()||!desk()||!pref()||document.getElementById("m3d")||document.body.classList.contains("jmapon"))return null;if(S.view==="mesto")return q(".mapsheet #kcity")?"map":null;return q("header.top .tabs .tab")&&q(".wrap.pad")?"sheet":null};
+const mode=()=>{if(!hasS()||!desk()||!pref()||(document.getElementById("m3d")&&!(document.body.classList.contains("p3d-book")&&S.view!=="mesto"))||document.body.classList.contains("jmapon"))return null;if(S.view==="mesto")return q(".mapsheet #kcity")?"map":null;return q("header.top .tabs .tab")&&q(".wrap.pad")?"sheet":null};
 const active=()=>mode()!==null;
 let open=false,lastH="";
 const IC={book:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5c3-1 5-1 8 1v14c-3-2-5-2-8-1zM20 5c-3-1-5-1-8 1v14c3-2 5-2 8-1z"/></svg>',
@@ -8652,7 +8653,8 @@ const THREE_URL="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.
 const hasS=()=>{try{return !!S&&!!S.dyn}catch(e){return false}};
 const desk=()=>true;
 const U=10;
-let T=null,st=null,LABELS=[],CHIM=[],REST=null;
+let T=null,st=null,LABELS=[],CHIM=[],REST=null,M3TITLE=false;
+A.m3title=v=>{M3TITLE=!!v;try{if(st&&st.root)st.root.classList.toggle("m3title",M3TITLE)}catch(e){}};
 
 /* ---------- správa farieb (v102): rovnaký vzhľad v každej verzii knižnice ----------
    Staršia knižnica (r128) počíta svetlo priamo vo farbách obrazovky a výsledok je prepálený. Tu sa farby prevedú na lineárne, svetlá sa zoslabia a obraz sa na konci prevedie späť. */
@@ -9752,17 +9754,20 @@ function open(){FIGS.length=0;const QLV=QL();let FPSN=0;
  LABELS=[];CHIM=[];FLAGS=[];const PRE=[];const C=CC(),L=cityLayout(C),p=P(),cid=S.ci;const pal=PAL[L.key]||PAL.pre;
  const wx=q=>[(q[0]-L.cx)/U,(q[1]-L.cy)/U],snow=S.season===3;
  const root=document.createElement("div");root.id="m3d";
- root.innerHTML=`<canvas></canvas><div class="m3top"><b>${C.n}</b><span>${["jar","leto","jeseň","zima"][S.season]} ${S.year}${(()=>{try{const w=wx3(),p9=todPh();return p9===3?" · noc":[" · ráno",""," · večer"][p9]+(w==="dazd"?" · dážď":w==="sneh"?" · sneží":w==="hmla"?" · hmla":"")}catch(e){return""}})()}</span><i class="m3hud"></i><i class="m3fps" title="Snímky za sekundu a kvalita grafiky (kláves Q)"></i><button class="btn sm" data-m3end="1" title="Ukončiť štvrťrok (kláves K)">⏭ Ďalší štvrťrok</button><button class="btn sm pri" data-a="m3dx">✕ Späť do knihy rodu (Esc)</button></div>
+ root.innerHTML=`<canvas></canvas><div class="m3top"><b>${C.n}</b><span>${["jar","leto","jeseň","zima"][S.season]} ${S.year}${(()=>{try{const w=wx3(),p9=todPh();return p9===3?" · noc":[" · ráno",""," · večer"][p9]+(w==="dazd"?" · dážď":w==="sneh"?" · sneží":w==="hmla"?" · hmla":"")}catch(e){return""}})()}</span><i class="m3hud"></i><i class="m3fps" title="Snímky za sekundu a kvalita grafiky (kláves Q)"></i><button class="btn sm" data-m3end="1" title="Ukončiť štvrťrok (kláves K)">⏭ Ďalší štvrťrok</button>${window.P3D?'<button class="btn sm" data-a="p3dBook" title="Kniha rodu: dielne, trh, sklad, rod, kronika (kláves B)">📖 Kniha (B)</button><button class="btn sm pri" data-a="gameMenu">☰ Ponuka (Esc)</button>':'<button class="btn sm pri" data-a="m3dx">✕ Späť do knihy rodu (Esc)</button>'}</div>
  <div class="m3help"><b>W A S D</b> alebo šípky: chôdza · <b>myš</b> (ťahaj): pohľad · <b>koliesko</b>: priblíženie · <b>V</b>: pohľad z očí · <b>M</b>: pohľad z výšky · <b>G</b>: obrysy perom · <b>L</b>: svetlo a tiene · <b>H</b>: jemné alebo sýte farby · <b>Q</b>: kvalita grafiky · <b>Z</b>: zvuky · <b>K</b>: ďalší štvrťrok · <b>T</b>: miesta · <b>N</b>: mapka · <b>E</b>: použiť · <b>Shift</b>: beh</div><div class="m3hint" hidden></div><div class="m3panel" hidden></div>`;
- document.body.appendChild(root);
+ document.body.appendChild(root);root.classList.toggle("m3title",M3TITLE);
  const canvas=root.querySelector("canvas");canvas.tabIndex=0;canvas.style.outline="none";
- const renderer=new T.WebGLRenderer({canvas,antialias:true});renderer.setPixelRatio(QLV===0?1:Math.min(QLV===1?1.5:2,devicePixelRatio||1));renderer.setSize(innerWidth,innerHeight);renderer.info.autoReset=false;
+ const renderer=new T.WebGLRenderer({canvas,antialias:QLV>0,powerPreference:"high-performance"});renderer.setPixelRatio(QLV===0?1:Math.min(QLV===1?1.5:2,devicePixelRatio||1));renderer.setSize(innerWidth,innerHeight);renderer.info.autoReset=false;
  /* automatické rozlíšenie (v256): keď hra dlhšie beží pod 26 snímok za sekundu, zníži sa rozlíšenie; keď je rezerva, vráti sa */
  const PRMAX=renderer.getPixelRatio(),PRS=[PRMAX,PRMAX*.75,PRMAX*.6].filter((v,i,a)=>i===0||(v>=.6&&v<a[i-1]-.05));let DRL=0,DRC=0,DRW=false;
  const DRS=f=>{if(document.hidden)return;if(f<26)DRC=Math.min(0,DRC)-1;else if(f>52)DRC=Math.max(0,DRC)+1;else DRC=0;
   const setPR=()=>{renderer.setPixelRatio(PRS[DRL]);renderer.setSize(innerWidth,innerHeight);try{if(post)post.resize()}catch(e){}};
   if(DRC<=-3&&DRL<PRS.length-1){DRL++;DRC=0;setPR()}else if(DRC>=8&&DRL>0){DRL--;DRC=0;setPR()}
-  else if(DRC<=-6&&DRL===PRS.length-1&&!DRW&&QLV>0){DRW=true;try{toast("3D mesto beží pomaly – skús nižšiu kvalitu grafiky (kláves Q).","info")}catch(e){}}};
+  else if(DRC<=-6&&DRL===PRS.length-1&&!DRW&&QLV>0){DRW=true;let man=false;try{man=localStorage.getItem("m3qm")==="1"}catch(e){}
+   const bz=room||document.body.classList.contains("p3d-book")||!!document.querySelector("#modal:not([hidden])");
+   if(man||bz){try{toast("3D mesto beží pomaly – skús nižšiu kvalitu grafiky (kláves Q).","info")}catch(e){}}
+   else{const nq=QLV-1;try{localStorage.setItem("m3q",String(nq))}catch(e){}try{toast("3D mesto bežalo pomaly, grafika sa prepla na "+["nízku","strednú"][nq]+" kvalitu. Kláves Q ju zmení.","info")}catch(e){}REST={c:cid,px,pz,yaw,pitch,dist};close();setTimeout(()=>{try{A.m3d()}catch(e){}},30)}}};
  renderer.shadowMap.enabled=true;try{if(LEG())renderer.outputEncoding=T.sRGBEncoding}catch(e){}let post=null,postOn=true,postChk=0;try{postOn=localStorage.getItem("m3post")!=="0"}catch(e){}try{GL2=!!renderer.capabilities.isWebGL2}catch(e){GL2=false}
  const scene=new T.Scene();let ph=1;try{ph=todPh()}catch(e){}const night=ph===3;NIGHT3=night;try{if(!RIMU.value)RIMU.value=new T.Color();const wq=(()=>{try{return wx3()}catch(e){return"jasno"}})();WETU.value=wq==="dazd"?1:0;SNOWU.value=wq==="sneh"?.85:S.season===3?.45:0;RIMU.value.setRGB(...(night?[.06,.08,.14]:ph===2?[.36,.26,.17]:ph===0?[.3,.28,.27]:wq!=="jasno"?[.2,.22,.25]:[.3,.33,.37]))}catch(e){}try{post=mkPost(renderer,night?[.82,.9,1.12]:ph===2?[1.07,.96,.86]:ph===0?[1.04,.99,.94]:[1.02,1,.97])}catch(e){console.warn("3D vzhľad",e);post=null}const wxS=(()=>{try{return wx3()}catch(e){return"jasno"}})(),bad=wxS!=="jasno"&&!night;const TD=(()=>{try{return iso().TOD[night?1:ph]||iso().TOD[1]}catch(e){return null}})();
  const skyT=night?"#101a34":bad?"#8a96a2":snow?"#b9c8d8":TD?TD.sky[0]:"#8cbce4",sky=night?"#2a3654":bad?(wxS==="hmla"?"#cfd4d6":"#b4bdc4"):snow?"#e2e8ee":S.season===2&&ph===1?"#f0dcc0":TD?TD.sky[1]:"#eaf2f0";
@@ -9962,7 +9967,7 @@ function open(){FIGS.length=0;const QLV=QL();let FPSN=0;
  for(const l of lots){const q=L.pos[l.id];if(!q)continue;const[x,z]=wx([q.x,q.y]);const ry=((l.id*37)%7-3)*.12;
   if(l.pub){const mp=mapPub(K,l.pub,l,x,z,C,L);const r=mp?mp.r:pub(g,l.pub,x,z);solids.push([x,z,mp&&mp.solid||r*.75]);const nm={hrad:"Hrad",kostol:"Kostol",radnica:"Radnica",trh:"Trh",uzernik:"Úžerník"}[l.pub]||l.pub;const s=label(nm,null,1.2,{k:"pub"});s.position.set(x,l.pub==="kostol"?16:l.pub==="trh"?4:9,z);g.add(s);
    const go={hrad:["Hrad: tituly a kráľ","dvor"],kostol:["Kostol: Cirkev a púte","cirkev"],radnica:["Radnica: voľby a úrady","radnica"],trh:["Trh: nakupovať a predávať","trh"],uzernik:["Úžerník: pôžičky","majetok"]}[l.pub];
-   if(l.pub==="trh")add(x,z,r+2.5,"Trh: nakupovať a predávať",()=>panel(marketHTML),"pub");else if(l.pub==="uzernik")add(x,z,r+2.5,"Úžerník: vojsť",()=>enter("uzernik",{}),"pub");else if(["radnica","hrad","kostol"].includes(l.pub))add(x,z,r+2.5,{radnica:"Radnica: vojsť do radnej siene",hrad:"Hrad: vojsť do siene",kostol:"Kostol: vojsť"}[l.pub],()=>enter(l.pub,{}),"pub");else if(go)add(x,z,r+2.5,go[0],()=>{close();A.tab({v:go[1]})},"pub");continue}
+   if(l.pub==="trh")add(x,z,r+2.5,"Trh: nakupovať a predávať",()=>panel(marketHTML),"pub");else if(l.pub==="uzernik")add(x,z,r+2.5,"Úžerník: vojsť",()=>enter("uzernik",{}),"pub");else if(["radnica","hrad","kostol"].includes(l.pub))add(x,z,r+2.5,{radnica:"Radnica: vojsť do radnej siene",hrad:"Hrad: vojsť do siene",kostol:"Kostol: vojsť"}[l.pub],()=>enter(l.pub,{}),"pub");else if(go)add(x,z,r+2.5,go[0],()=>{window.P3D||close();A.tab({v:go[1]})},"pub");continue}
   if(l.b!=null){const b=S.bld.find(v=>v.id===l.b);if(!b)continue;const mine=b.owner===0,col=(()=>{try{return DC(b.owner)}catch(e){return"#777"}})();
    DARKW=night&&!(b.type==="brloh"||b.type==="pasovanie"||b.type==="pivovar"||b.type==="krcma");let mw;try{mw=mapWorkshop(K,l,b,x,z)}finally{DARKW=false}solids.push([x,z,Math.max(2.4,mw.w*.55)]);LOTB.push([x,z,Math.max(mw.w,mw.dd)/2,l.id]);flag(g,x-mw.w/2+.3,mw.h-.4,z-mw.dd/2+.3,col);
    const bt3=b.bt===S.turn,ab3=!bt3&&((b.w|0)<1||!!b.halt);try{if(bt3)scaf3(x,z,mw);else if(ab3)aband3(x,z,mw,l.id)}catch(e){console.warn("3D lešenie",e)}
@@ -10095,6 +10100,8 @@ function open(){FIGS.length=0;const QLV=QL();let FPSN=0;
   const Q={};Object.values(L.pos||{}).forEach(q=>{const w2=wx([q.x,q.y]);if(Math.hypot(w2[0]-pl[0],w2[1]-pl[1])<16)return;const k=dirN(w2[0],w2[1],["e","s","w","n"]);(Q[k]=Q[k]||[]).push(w2)});
   const QN={n:"Severná štvrť",s:"Južná štvrť",e:"Východná štvrť",w:"Západná štvrť"};Object.entries(Q).forEach(([k,a])=>{if(a.length<4)return;const x=a.reduce((s2,q)=>s2+q[0],0)/a.length,z=a.reduce((s2,q)=>s2+q[1],0)/a.length;hiL(QN[k],x,z,2)});
   gates.forEach(q=>hiL(dirN(q[0],q[1],["Východná brána","Južná brána","Západná brána","Severná brána"]),q[0]+(q[0]-cen[0])*.08,q[1]+(q[1]-cen[1])*.08,1.8))}catch(e){console.warn("3D nápisy z výšky",e)}
+  /* brány (v318): cesta do iných miest – otvorí zoznam miest a miest na cestovanie */
+  if(window.P3D)try{gates.forEach(q=>inter.push({x:q[0],z:q[1],r:4.6,text:"Mestská brána: cestovať do iného mesta",act:()=>{try{X_NAV.places&&X_NAV.places()}catch(e){}},kind:"pub"}))}catch(e){console.warn("3D brány",e)}
  /* ---------- detaily mesta (v105): záhradky, ploty, drevo, káry, studne, bielizeň, lavičky, sliepky ---------- */
  try{const wd=M("#6a4a2a"),wd2=M("#8a6a44"),soilM=M(snow?"#e6ecee":"#6a4a2c"),rowM=M(snow?"#dfe8ee":S.season===2?"#b08a30":"#4f8a38"),stM=M("#b9b0a0");
   const pm=(geo,mat,x,y,z,sh)=>{const m=new T.Mesh(geo,mat);m.position.set(x,y,z);m.castShadow=sh!==false;g.add(m);return m};
@@ -10209,14 +10216,14 @@ function open(){FIGS.length=0;const QLV=QL();let FPSN=0;
   const o={g:f,d,t:[q[0],q[1]],q:[],v:1.1+(i%3)*.25,wait:i*.4,fol,home:[q[0],q[1]],k:""};folk.push(o);
   inter.push({get x(){return f.position.x},get z(){return f.position.z},r:2.6,text:`${d.head.name} z rodu ${d.name}: osloviť`,act:()=>panel(()=>talkHTML(d.id)),kind:"npc"})});
  /* ---------- živé mesto (v94): remeselníci, predavači, stráže, chodci, vozy, udalosti ---------- */
- const LAMPS=[];const X_NAV={};const life=[];{const FIGS=[],FS=new WeakSet();let nxt=0;let lodT=0;
+ const LAMPS=[];const X_NAV={};const life=[];{const FIGS=[],FS=new WeakSet();let nxt=0;let lodT=0;const LQ0=QL()===0,LD1=LQ0?20:32,LD2=LQ0?30:45;
   /* zástupcovia (v297): postavy ďalej ako 45 m (a všetky pri pohľade z výšky) sú jednoduchý trup s nohami a hlavou vo farbe odevu; všetky v dvoch kresleniach */
   const PXN=320,pxB=new T.InstancedMesh(mergeParts([[new T.CylinderGeometry(.16,.27,1.15,8),"#ffffff",[0,.98,0]],[new T.CylinderGeometry(.1,.08,.42,6),"#5a5a5a",[-.1,.21,0]],[new T.CylinderGeometry(.1,.08,.42,6),"#5a5a5a",[.1,.21,0]]]),new T.MeshLambertMaterial({vertexColors:true}),PXN),
    pxH=new T.InstancedMesh(mergeParts([[new T.SphereGeometry(.19,8,6),"#d9b38e",[0,1.75,0]],[new T.SphereGeometry(.205,8,5,0,6.3,0,1.3),"#5a4030",[0,1.79,-.01]]]),new T.MeshLambertMaterial({vertexColors:true}),PXN),pxM=new T.Matrix4(),pxC=new T.Color();
   pxB.instanceColor=new T.InstancedBufferAttribute(new Float32Array(PXN*3).fill(1),3);[pxB,pxH].forEach(m=>{m.count=0;m.frustumCulled=false;scene.add(m)});
   life.push((dt,t)=>{CRW.prev=CRW.cur;CRW.cur=[];
   /* postavy v diaľke (v269): nad 32 m bez tieňa a bez žmurkania, nad 75 m sa nekreslia (nie pri pohľade z výšky) */
-  if(t>lodT){lodT=t+.4;const cp=cam.position,hiV=dist>60;for(const f of FIGS){const u=f.userData,r=u.rig;if(!r)continue;const e=f.matrixWorld.elements,d=Math.hypot(cp.x-e[12],cp.z-e[14]),L2=hiV?2:d>45?2:d>32?1:0;if(u.lod===L2)continue;u.lod=L2;r.visible=L2<2;const sh=L2===0;r.traverse(o=>{if(o.isMesh)o.castShadow=sh})}}
+  if(t>lodT){lodT=t+.4;const cp=cam.position,hiV=dist>60;for(const f of FIGS){const u=f.userData,r=u.rig;if(!r)continue;const e=f.matrixWorld.elements,d=Math.hypot(cp.x-e[12],cp.z-e[14]),L2=hiV?2:d>LD2?2:d>LD1?1:0;if(u.lod===L2)continue;u.lod=L2;r.visible=L2<2;const sh=L2===0;r.traverse(o=>{if(o.isMesh)o.castShadow=sh})}}
   if(t>nxt){nxt=t+2;scene.traverse(o=>{const u=o.userData;if(u&&u.rig&&u.arms&&!FS.has(o)){FS.add(o);FIGS.push(o)}})}
   for(let i=FIGS.length-1;i>=0;i--){const f=FIGS[i];if(!f.parent){FIGS.splice(i,1);continue}const u=f.userData;if(!f.visible||t-(u.ext==null?-9:u.ext)<.3)continue;const e=f.matrixWorld.elements;if(Math.hypot(PLP[0]-e[12],PLP[1]-e[14])>45)continue;stride(f,false,t,0,true)}
   {let pn=0;const cp=cam.position;for(const f of FIGS){const u=f.userData;if(u.lod!==2||pn>=PXN||!f.parent)continue;let vis=f.visible,pp=f.parent;while(vis&&pp&&pp!==scene){vis=pp.visible;pp=pp.parent}if(!vis)continue;const e=f.matrixWorld.elements;if(Math.hypot(cp.x-e[12],cp.z-e[14])>170)continue;
@@ -10299,7 +10306,7 @@ function open(){FIGS.length=0;const QLV=QL();let FPSN=0;
   /* stráže pri bránach */
   gates.forEach((q,gi)=>{const dx=cen[0]-q[0],dz=cen[1]-q[1],dl=Math.hypot(dx,dz)||1,ux=dx/dl,uz=dz/dl;[-1,1].forEach(sg=>{const m=npc("#5a5f6a",{hat:"#9aa0a8",helm:1,spear:1});m.position.set(q[0]+ux*4.4-uz*sg*1.9,0,q[1]+uz*4.4+ux*sg*1.9);m.rotation.y=Math.atan2(ux,uz)})});
   /* chodci po uliciach */
-  const walkers=[];const nW=ev.plague?2:night?4:Math.round(1.5*(7+((CN.tier||1)*3))*(snow?.6:1)*(ev.fair?1.8:1));
+  const walkers=[];const nW=ev.plague?2:night?4:Math.round((QL()===0?1:1.5)*(7+((CN.tier||1)*3))*(snow?.6:1)*(ev.fair?1.8:1));
   for(let i=0;i<nW;i++){const guard=night||(ev.guards&&i<3);const m=guard?npc("#5a5f6a",{hat:"#9aa0a8",helm:1,spear:1}):npc(ROBE[(i*5+2)%8],{hat:i%4===0&&i%5!==3?"#6a4a2a":null,fem:i%3===2,kid:i%5===3});const q=way[(i*13+1)%way.length];m.position.set(q[0]+1,0,q[1]-1);if(!guard&&!night&&i%5!==3&&i%3!==2&&i%3!==1){const ck=i%7===2||i%7===4?"sack":i%7===5?"yoke":null;if(ck)try{carryL(m,ck,M)}catch(e){}}if(!guard&&i%5===3)m.scale.set(.65,.65,.65);if(night){const ln=new T.Mesh(new T.SphereGeometry(.11,8,6),new T.MeshBasicMaterial({color:"#ffcf70"}));ln.position.set(.36,1.05,.22);m.add(ln);const gs=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(blobTex()),color:"#ffb84a",transparent:true,opacity:.45,depthWrite:false,blending:T.AdditiveBlending,fog:false}));gs.scale.set(1.6,1.6,1);gs.position.copy(ln.position);m.add(gs);if(i<2){const pl5=new T.PointLight("#ffb060",1.6,11,1.6);pl5.position.set(.36,1.3,.5);m.add(pl5)}}if(!guard&&i%3===1)try{const bk=new T.Group();bk.position.set(0,-.74,.08);m.userData.arms[0].add(bk);const b1=new T.Mesh(new T.CylinderGeometry(.17,.12,.16,8),M("#b89a5a"));b1.castShadow=true;bk.add(b1);const hd=new T.Mesh(new T.TorusGeometry(.13,.015,4,10,Math.PI),M("#8a6a3a"));hd.position.y=.08;bk.add(hd);[[-.05,"#d8453a"],[.05,"#6a9a44"],[0,"#e8b030"]].forEach((c,k)=>{const f=new T.Mesh(new T.SphereGeometry(.055,6,5),M(c[1]));f.position.set(c[0],.1,k===2?.05:-.03);bk.add(f)})}catch(e){}walkers.push({g:m,t:[q[0]+1,q[1]-1],q:[],v:(!guard&&i%5===3?1.65:m.userData.carry?.85:1)*(.9+(i%4)*.22),wait:i%3,guard,home:WHOME.length?WHOME[(i*7+3)%WHOME.length]:null,k:"",hide:0})}
   WK=walkers;try{life.push(blobLife(scene))}catch(e){console.warn("3D tiene pod postavami",e)}
   /* deti, psy a mačky (v132) */
@@ -10574,7 +10581,8 @@ function tavernHTML(){const p0=P();if(cid!==p0.city)return`<h3>Hry v krčme</h3>
      if(hv>=3){const gd=servant(1.9,dd/2-1,Math.PI,dc,"#8a9098",null,(A2)=>{A2[1].rotation.x=-.2;A2[0].rotation.x=0});if(gd&&gd.userData.arms){const a=gd.userData.arms[1],sh=new T.Mesh(new T.CylinderGeometry(.025,.025,2.3,6),M("#6b4a2a"));sh.position.set(0,-.25,.14);a.add(sh);const tp=new T.Mesh(new T.ConeGeometry(.05,.3,6),M("#b8bcc4"));tp.position.set(0,1.02,.14);a.add(tp)}}
      /* návšteva čaká */
      try{const v=typeof kVisitor==="function"?kVisitor():null;if(v&&!nightH&&cid===p.city){const nm={posol:"Posol",kupec:"Potulný kupec",mnich:"Mních",super:"Hosť"}[v.k]||"Návšteva",col={posol:"#2f5bb0",kupec:"#7a5a2a",mnich:"#5a4a3a",super:"#6d2a3f"}[v.k]||"#5a5a5a";const vm=servant(-1.8,dd/2-1.9,2.6,col,v.k==="mnich"?null:"#3a2a1a",nm,(A2,t,m)=>{m.visible=!!kVisitor();A2[0].rotation.x=-.5;A2[1].rotation.x=-.5;m.rotation.y=2.6+.25*Math.sin(t*.5)});rAdd(R,-1.6,dd/2-2.3,1.6,`${nm} čaká v sieni: prijať`,()=>{try{if(kVisitor())A.kVisit();else panel(()=>`<h3>Návšteva</h3><p>Hosť už odišiel.</p>`)}catch(e){console.warn(e)}})}}catch(e){console.warn("3D návšteva",e)}}
-    rAdd(R,0,0,2.6,"Kniha rodu: otvoriť kartu Rod",()=>{close();A.tab({v:"rod"})});
+    if(window.P3D){rAdd(R,-2.4,-dd/2+1.5,1.7,"Rodokmeň na stene: predkovia a dedičia",()=>A.p3dRod("predkovia"));rAdd(R,2.4,-dd/2+1.5,1.7,"Rodina: manželstvo, deti a výchova",()=>A.p3dRod("rodina"));rAdd(R,2.6,dd/2-2.4,1.6,"Pult s kronikou: denník a kronika rodu",()=>A.p3dBook("dennik"))}
+    rAdd(R,0,0,2.6,"Kniha rodu: otvoriť kartu Rod",()=>{window.P3D||close();A.tab({v:"rod"})});
     /* dvere do ďalších izieb */
     const rs=roomsOf(cid===p.city?p:Object.assign({},p,{house:hv,hu:((S.seats||{})[cid]||{}).hu||[]})).filter(r=>r[2]&&r[0]!=="sien"&&r[0]!=="nadvorie");
     rs.forEach((r,i)=>{const side=i%2?1:-1,zz=-dd/2+2.2+Math.floor(i/2)*2.6;sideDoor(G,side*(w/2-.02),zz,side);const s=label(r[1],null,.6,{k:"note"});s.position.set(side*(w/2-.6),2.6,zz);G.add(s);rAdd(R,side*(w/2-.8),zz,1.7,`Dvere: ${r[1]}`,()=>enter("home",{d:d2,room:r[0]}))})}
@@ -10582,7 +10590,7 @@ function tavernHTML(){const p0=P();if(cid!==p0.city)return`<h3>Hry v krčme</h3>
     if(rm==="kuchyna"){if(!nightH){const ck=servant(1.1,-dd/2+1.5,-2.4,"#e8e0d0","#f3ead0",hv>=3?"Kuchár":"Kuchárka",(A2,t)=>{A2[1].rotation.x=-1.1;A2[1].rotation.z=.25*Math.sin(t*3);A2[0].rotation.x=-.3});if(ck&&ck.userData.arms){const la=new T.Mesh(new T.CylinderGeometry(.02,.02,.6,6),M("#7a5a34"));la.position.set(0,-.75,.2);la.rotation.x=1;ck.userData.arms[1].add(la)}{const pot=new T.Mesh(new T.CylinderGeometry(.28,.22,.3,10),M("#2a2a2e"));pot.position.set(0,.55,-dd/2+1);G.add(pot)}
       rAdd(R,1.2,-dd/2+2,1.7,(hv>=3?"Kuchár":"Kuchárka")+": čo sa dnes varí",()=>panel(()=>{const m=Math.round(P().money),se=S.season;return`<h3>Kuchyňa</h3><p><i>„${m<200?"Kaša a cibuľa, pane. Komora je skoro prázdna.":hv>=4?["Pečený kapún s medom a šafránom.","Ryby na masle a čerstvý chlieb.","Zverina s hruškami a korením.","Bravčová pečienka a kapusta s klobásou."][se]:hv>=2?["Jahňacina s bylinkami.","Hrachová polievka a pečené kura.","Hus s kapustou.","Fazuľa s údeným a čerstvý chlieb."][se]:["Hrachová kaša a vajcia.","Kapustnica a chlieb.","Jačmenná kaša so slaninou.","Fazuľová polievka."][se]}“</i></p><p class="m3note">Len na oživenie, nič to nemení.</p>`}));
       if(hv>=3)servant(-2.6,.5,1.57,"#7a6a54",null,null,(A2,t)=>{A2[0].rotation.x=-.9+.2*Math.sin(t*5);A2[1].rotation.x=-.9-.2*Math.sin(t*5)})}fire(G,R,0,-dd/2+.5);table(G,R,-1.5,.5,2.6,1.2,{bare:1});try{kitchenStuff(G,R,w,dd,hv);if(hv<=1)cobweb(G,-w/2+.45,3,-dd/2+.05,0)}catch(e){console.warn("3D zariadenie",e)}[[2.5,-1],[3.2,.1],[2.4,1.2]].forEach(q=>keg(G,R,q[0],q[1]));shelf(G,R,-w/2+.02,1.5,-1,2.4);for(let i=0;i<4;i++){const pt=new T.Mesh(new T.SphereGeometry(.16,8,6),M(i%2?"#b8643a":"#3a3a42"));pt.position.set(-w/2+.5,2.25,-.9+i*.5);G.add(pt)}}
-    if(rm==="pracovna"){famAt("pracovna",[[2.2,-.6,-1.2],[-2.4,.4,1.2]]);rug(G,0,-.6,4.2,3,"damaskB");table(G,R,0,-1,2.6,1.2,{bare:1});candle(G,-.9,.82,-1);{const bk=new T.Mesh(new T.BoxGeometry(.5,.06,.36),M("#f6efdc"));bk.position.set(.1,.85,-.95);G.add(bk)}chair(G,R,0,-2,0,{cush:"#2f5bb0"});shelf(G,R,-w/2+.02,-1,-1,2.6);chest(G,R,2.4,1,1.3);try{painting(G,0,2.2,-dd/2+.03,0,1.5,1.1,"map",4,hv>=3);[[-.5,-.8,4],[-.38,-.9,6],[-.56,-.98,3]].forEach(q=>{for(let i=0;i<q[2];i++)prop(G,PG.c,"#e3be4f",q[0],.826+i*.013,q[1],.035,.012,.035)});prop(G,PG.c,"#2a2a2a",.6,.86,-1.25,.05,.08,.05);prop(G,PG.k,"#f4f0e6",.6,1.02,-1.25,.02,.3,.02).rotation.z=.25;[0,1,2].forEach(i=>{const sc=prop(G,PG.c,"#f0e6c8",.75+i*.02,.85+i*.05,-.75,.04,.4,.04);sc.rotation.z=Math.PI/2;sc.rotation.y=.3*i});if(hv>=3)painting(G,w/2-.03,2.15,-1,-Math.PI/2,.8,1,"port",5,hv>=4)}catch(e){console.warn("3D zariadenie",e)}rAdd(R,0,-1,2.2,"Účtovné knihy: otvoriť kartu Majetok",()=>{close();A.tab({v:"majetok"})})}
+    if(rm==="pracovna"){famAt("pracovna",[[2.2,-.6,-1.2],[-2.4,.4,1.2]]);rug(G,0,-.6,4.2,3,"damaskB");table(G,R,0,-1,2.6,1.2,{bare:1});candle(G,-.9,.82,-1);{const bk=new T.Mesh(new T.BoxGeometry(.5,.06,.36),M("#f6efdc"));bk.position.set(.1,.85,-.95);G.add(bk)}chair(G,R,0,-2,0,{cush:"#2f5bb0"});shelf(G,R,-w/2+.02,-1,-1,2.6);chest(G,R,2.4,1,1.3);try{painting(G,0,2.2,-dd/2+.03,0,1.5,1.1,"map",4,hv>=3);[[-.5,-.8,4],[-.38,-.9,6],[-.56,-.98,3]].forEach(q=>{for(let i=0;i<q[2];i++)prop(G,PG.c,"#e3be4f",q[0],.826+i*.013,q[1],.035,.012,.035)});prop(G,PG.c,"#2a2a2a",.6,.86,-1.25,.05,.08,.05);prop(G,PG.k,"#f4f0e6",.6,1.02,-1.25,.02,.3,.02).rotation.z=.25;[0,1,2].forEach(i=>{const sc=prop(G,PG.c,"#f0e6c8",.75+i*.02,.85+i*.05,-.75,.04,.4,.04);sc.rotation.z=Math.PI/2;sc.rotation.y=.3*i});if(hv>=3)painting(G,w/2-.03,2.15,-1,-Math.PI/2,.8,1,"port",5,hv>=4)}catch(e){console.warn("3D zariadenie",e)}rAdd(R,0,-1,2.2,"Účtovné knihy: otvoriť kartu Majetok",()=>{window.P3D||close();A.tab({v:"majetok"})})}
     if(rm==="spalna"){if(nightH&&p.spouse&&cid===p.city)stand(R,p,"spouse",p.head.gender!=="f",-1.9,-dd/2+2.6,.9,p.spouse.name||"Manžel/ka",{t:": prehovoriť",f:()=>panel(()=>famHTML("spouse"))});bed(G,R,0,-dd/2+1.9);rug(G,0,1,3,2,"damask");KO(G).box(w/2-1.6,-.4,1.4,.8,2.2,WD);chest(G,R,-w/2+1.2,.5,1.2);const s2=label("Šatník",null,.6,{k:"note"});s2.position.set(w/2-.9,2.7,0);G.add(s2);
      try{painting(G,-w/2+.03,2.1,-.6,Math.PI/2,.7,.9,"saint",1,hv>=3);if(hv>=2)tapestry(G,1.9,2.05,-dd/2+.02,0,1.1,1.5,hv+2);if(hv>=1){prop(G,PG.c,"#6b4a2a",-w/2+1.2,.35,2.2,.05,.7,.05);prop(G,PG.c,hv>=3?"#c8ccd2":"#b8703a",-w/2+1.2,.74,2.2,.24,.09,.24);prop(G,PG.c,"#6fa6cf",-w/2+1.2,.785,2.2,.21,.005,.21);prop(G,PG.c,hv>=3?"#c8ccd2":"#8a5a32",-w/2+1.45,.14,2.35,.09,.28,.09)}candle(G,-w/2+1.2,.62,.5);if(hv===0){straw(G,w,dd,14);cobweb(G,w/2-.05,3,-dd/2+.45,-Math.PI/2)}}catch(e){console.warn("3D zariadenie",e)}}
     if(rm==="kaplnka"){famAt("kaplnka",[[.9,-dd/2+2,0]]);altar(G,R,0,-dd/2+1,1.8);rug(G,0,.6,1.2,dd-3.4,"damask");[-1,1].forEach(q=>{bench(G,R,q*1.9,.4,1.9,1);bench(G,R,q*1.9,1.9,1.9,1)})}
@@ -10674,7 +10682,7 @@ function tavernHTML(){const p0=P();if(cid!==p0.city)return`<h3>Hry v krčme</h3>
     rAdd(R,6.2,1.5,2,"Cechmajster: cechy a frakcie mesta",()=>panel(()=>radHTML("cechy")));
     /* prosebníci na laviciach */
     [[-5.6,"#5a6a4a",null],[-4.5,"#8a6a4a","#3a2a1a"],[5.3,"#4a5a7a",null]].forEach((q,k)=>clerk(q[0],3.4,Math.PI,q[1],q[2],null,(A2,t,m)=>{A2[0].rotation.x=-.7;A2[1].rotation.x=-.7;m.rotation.y=Math.PI+.35*Math.sin(t*.3+k*2)},1))}
-   door(G,5.42,1.5,2.4);rAdd(R,0,4.6,1.9,"Vyjsť na námestie",leave)}
+   door(G,5.42,1.5,2.4);if(window.P3D){rAdd(R,-6.2,1.5,1.9,"Kniha mesta: voľby, úrady a rody",()=>A.p3dBook("radnica"))}rAdd(R,0,4.6,1.9,"Vyjsť na námestie",leave)}
   else if(kind==="hrad"){R=mkRoom2(14,16,5.2,{wall:"wallY",floor:"marble",cornice:1,win:{n:4,g:1,z:2,h:2.4,w:.8}});const G=R.G;throne(G,R,0,-6.6);banner(G,-2.2,3.4,-7.95,"#7a1f2b",0);banner(G,2.2,3.4,-7.95,"#2f5bb0",0);
    for(let i=0;i<4;i++)[-1,1].forEach(q=>{KO(G).cyl(q*5,-5+i*3.2,.42,5.2,{tex:"marble",finial:false});KO(G).box(q*5-.6,-5+i*3.2-.6,1.2,1.2,.3,{tex:"marble",topTex:"marble",clean:1,tpu:16});R.solids.push([q*5,-5+i*3.2,.7])});
    stand(R,{id:-9,head:{gender:"m"},title:6,ai:1},"head",false,0,-5.6,0,"Kastelán hradu",{t:": priazeň kráľa, dary a audiencie",f:()=>panel(()=>radHTML("kastelan"))});
@@ -10696,7 +10704,7 @@ function tavernHTML(){const p0=P();if(cid!==p0.city)return`<h3>Hry v krčme</h3>
     halb(clerk(-2,6.9,Math.PI,"#7a1f2b","#8a9098",null,(A2,t)=>{A2[1].rotation.x=-.2;A2[0].rotation.x=0}));halb(clerk(2,6.9,Math.PI,"#7a1f2b","#8a9098",null,(A2,t)=>{A2[1].rotation.x=-.2;A2[0].rotation.x=0}));
     clerk(3,2.4,.9,"#6d3f92","#3a2a4a",null,(A2,t,m)=>{A2[1].rotation.x=-.6-.5*Math.max(0,Math.sin(t*1.3));A2[0].rotation.x=-.2;m.rotation.y=.9+.1*Math.sin(t*.5)});clerk(3.9,3.1,.9-Math.PI,"#2f7d46","#c9a23a",null,(A2,t,m)=>{A2[0].rotation.x=-.5-.4*Math.max(0,Math.sin(t*1.1+2));A2[1].rotation.x=-.15;m.rotation.x=.04*Math.sin(t*1.7)})}
    const car=new T.Mesh(new T.PlaneGeometry(2.2,12),faceMat("damask",2.2,12,[0,0,1],{tpu:14,clean:1}));car.rotation.x=-Math.PI/2;car.position.set(0,.02,0);G.add(car);
-   door(G,7.92,1.8,2.8);rAdd(R,0,7.1,2,"Vyjsť z hradu",leave)}
+   door(G,7.92,1.8,2.8);if(window.P3D){rAdd(R,2.8,3.4,1.8,"Kancelár: tituly, kariéra a štát",()=>A.p3dBook("dvor"))}rAdd(R,0,7.1,2,"Vyjsť z hradu",leave)}
   else if(kind==="kostol"){R=mkRoom2(10,18,6,{wall:"wallY",floor:"marble",win:{n:4,g:1,tr:1,z:1.8,h:3.2,w:1.3}});const G=R.G;rug(G,0,0,1.8,15,"damask");altar(G,R,0,-7.6,2.6);
    for(let i=0;i<5;i++)[-1,1].forEach(q=>{bench(G,R,q*2.6,-4+i*2,3,1)});
    [].forEach(q=>{[-1,1].forEach(sd=>{const wn=new T.Mesh(new T.PlaneGeometry(1,2.6),new T.MeshBasicMaterial({color:q[0],side:T.DoubleSide}));wn.position.set(sd*4.96,3.2,q[1]);wn.rotation.y=sd*-Math.PI/2;G.add(wn)})});
@@ -10718,7 +10726,7 @@ function tavernHTML(){const p0=P();if(cid!==p0.city)return`<h3>Hry v krčme</h3>
     rAdd(R,-3.5,6.2,1.8,"Pútnik: púte do svätých miest",()=>panel(()=>radHTML("pute")));
     /* veriaci v laviciach */
     (nightC?[[2.2,2,"#5a4a3a",null]]:[[-3.3,-4,"#5a6a4a",null],[-2.1,-4,"#8a5a6a","#e8e0d0"],[2.4,-2,"#4a5a7a",null],[-2.8,0,"#7a5a3a","#3a2a1a"],[3.2,0,"#6a4a6a","#e8e0d0"],[2,2,"#5a4a3a",null],[-3.4,4,"#4a6a6a",null]]).forEach((q,k)=>clerk(q[0],q[1]+.12,Math.PI,q[2],q[3],null,(A2,t,m)=>{A2[0].rotation.x=-1.1;A2[1].rotation.x=-1.1;A2[0].rotation.z=.25;A2[1].rotation.z=-.25;m.rotation.x=.1+.08*Math.max(0,Math.sin(t*.25+k*1.9))},1))}
-   door(G,8.92,1.6,2.8);rAdd(R,0,8.1,2,"Vyjsť z kostola",leave)}
+   door(G,8.92,1.6,2.8);if(window.P3D){rAdd(R,3.4,-5.5,1.7,"Kniha farnosti: cirkev a rod",()=>A.p3dBook("cirkev"))}rAdd(R,0,8.1,2,"Vyjsť z kostola",leave)}
   else if(kind==="uzernik"){const w=8,dd=7;R=mkRoom2(w,dd,3.2,{wall:"plaster",floor:"plank",wain:"#5a3a20",win:{n:1,z:1.2,h:1,w:.7}});const G=R.G;
    const mk=(geo,c,x,y,z,par)=>{const q=new T.Mesh(geo,M(c));q.position.set(x,y,z);q.castShadow=true;(par||G).add(q);return q},Bx=(a,b,c)=>new T.BoxGeometry(a,b,c),Cy=(r,h,r2)=>new T.CylinderGeometry(r2==null?r:r2,r,h,10);
    const npc=(x,z,ry,col,hat,nm,anim,sit)=>{const m=NPC3?NPC3(col,hat?{hat}:{}):null;if(!m)return null;scene.remove(m);G.add(m);m.position.set(x,sit?-.42:0,z);if(sit)(m.userData.legsP||[]).forEach(q=>q.rotation.x=-1.5);m.rotation.y=ry;if(nm){const s2=label(nm,null,.55,{k:"npc"});s2.position.set(0,2.6,0);m.add(s2)}if(!sit)R.solids.push([x,z,.45]);const A2=m.userData.arms;if(anim&&A2)life.push((dt,t)=>{if(m.parent)anim(A2,t,m)});return m};
@@ -10728,7 +10736,7 @@ function tavernHTML(){const p0=P();if(cid!==p0.city)return`<h3>Hry v krčme</h3>
    [[-.5,-1.05,5],[-.36,-1.12,3],[-.44,-1.3,7],[-.62,-1.25,2]].forEach(q=>{for(let i=0;i<q[2];i++)mk(Cy(.035,.012),i%3?"#e3be4f":"#d0a83a",q[0],.826+i*.013,q[1])});
    mk(Bx(.5,.05,.36),"#5a2a1a",.85,.845,-1.2);mk(Bx(.46,.02,.32),"#f1e6c8",.85,.875,-1.2);mk(Bx(.012,.022,.32),"#5a2a1a",.85,.88,-1.2);
    npc(0,-2.1,0,"#2a2a32","#1a1a20","Úžerník",(A2,t,m)=>{const s2=Math.max(0,Math.sin(t*2.2));A2[1].rotation.x=-.95-s2*.18;A2[1].rotation.z=.25;A2[0].rotation.x=-.85;m.rotation.x=.1;m.rotation.y=.12*Math.sin(t*.4)});
-   rAdd(R,0,-.2,2,"Úžerník: pôžička alebo splátka",()=>panel(lenderHTML));
+   if(window.P3D){rAdd(R,1.8,1.4,1.5,"Účtovná kniha: majetok a dlhy",()=>A.p3dBook("majetok"))}rAdd(R,0,-.2,2,"Úžerník: pôžička alebo splátka",()=>panel(lenderHTML));
    /* truhlice a mešce */
    chest(G,R,-w/2+1.1,-dd/2+1,1.4);chest(G,R,w/2-1.1,-dd/2+1,1.2);[[w/2-1.9,-dd/2+.7],[w/2-2.2,-dd/2+1.1],[w/2-1.7,-dd/2+1.3]].forEach((q,i)=>{const sk=mk(new T.SphereGeometry(.17,8,6),"#8a7a5a",q[0],.15,q[1]);sk.scale.set(1,.85,1);mk(Cy(.05,.08,.03),"#6a5a3a",q[0],.31,q[1])});
    /* strážca s kyjakom a čakajúci dlžník */
@@ -10742,11 +10750,13 @@ function tavernHTML(){const p0=P();if(cid!==p0.city)return`<h3>Hry v krčme</h3>
  /* ovládanie */
  const keys=new Set();let drag=null;
  const onKey=e=>{if(document.querySelector("#modal:not([hidden])"))return;const k=e.key.toLowerCase();
-  if(k==="escape"){e.preventDefault();e.stopImmediatePropagation();if(pfn){panelOff();return}if(room){leave();return}close();return}
+  if(document.body.classList.contains("p3d-book")){if(k==="escape"||(k==="b"&&!(e.target&&e.target.closest&&e.target.closest("input,textarea,select")))){e.preventDefault();e.stopImmediatePropagation();A.p3dBook(null)}return}
+  if(window.P3D&&k==="b"&&!e.repeat&&!M3TITLE){e.preventDefault();e.stopImmediatePropagation();keys.clear();A.p3dBook();return}
+  if(k==="escape"){e.preventDefault();e.stopImmediatePropagation();if(pfn){panelOff();return}if(room){leave();return}if(window.P3D){if(!M3TITLE)try{A.gameMenu()}catch(x){}return}close();return}
   if(pfn)return;
   if(k==="v"){fp=!fp;me.visible=!fp;return}
   if(k==="z"&&!room&&pn.hidden&&typeof SND!=="undefined"){try{SND.toggleSfx()}catch(e2){}try{toast(SND.sfx?"Zvuky mesta zapnuté.":"Zvuky mesta vypnuté.","good")}catch(e2){}REST={c:cid,px,pz,yaw,pitch,dist};close();setTimeout(()=>{try{A.m3d()}catch(e2){}},30);return}
-  if(k==="q"&&!room&&pn.hidden){const nq=QLV===0?2:QLV-1;try{localStorage.setItem("m3q",String(nq))}catch(e2){}try{toast("Kvalita grafiky: "+["nízka (najrýchlejšia)","stredná","vysoká"][nq]+".","good")}catch(e2){}REST={c:cid,px,pz,yaw,pitch,dist};close();setTimeout(()=>{try{A.m3d()}catch(e2){}},30);return}
+  if(k==="q"&&!room&&pn.hidden){const nq=QLV===0?2:QLV-1;try{localStorage.setItem("m3q",String(nq));localStorage.setItem("m3qm","1")}catch(e2){}try{toast("Kvalita grafiky: "+["nízka (najrýchlejšia)","stredná","vysoká"][nq]+".","good")}catch(e2){}REST={c:cid,px,pz,yaw,pitch,dist};close();setTimeout(()=>{try{A.m3d()}catch(e2){}},30);return}
   if(k==="h"&&LEG0()&&!room&&pn.hidden){CMON=!CMON;try{localStorage.setItem("m3cm",CMON?"1":"0")}catch(e){}I3S=-1;I3DS=-1;GFX={};for(const k2 in TXC)delete TXC[k2];for(const k2 in FMC)delete FMC[k2];for(const k2 in FGC)delete FGC[k2];FIGM=null;try{toast(CMON?"Jemné maľované farby.":"Pôvodné sýte farby.","good")}catch(e){}REST={c:cid,px,pz,yaw,pitch,dist};close();setTimeout(()=>{try{A.m3d()}catch(e){}},30);return}
   if(k==="l"){let on=true;try{on=!shOn();localStorage.setItem("m3sh",on?"1":"0")}catch(e){}try{toast(on?"Svetlo a tiene v miestnostiach zapnuté (platí po vstupe do miestnosti).":"Svetlo a tiene v miestnostiach vypnuté – rýchlejšie (platí po vstupe do miestnosti).","good")}catch(e){}return}
   if(k==="g"){postOn=!postOn;try{localStorage.setItem("m3post",postOn?"1":"0")}catch(e){}try{toast(postOn?"Maľovaný vzhľad zapnutý.":"Maľovaný vzhľad vypnutý (rýchlejšie).","good")}catch(e){}return}
@@ -10782,7 +10792,7 @@ function tavernHTML(){const p0=P();if(cid!==p0.city)return`<h3>Hry v krčme</h3>
    if(k==="borrow")A.borrow({n:b.dataset.n});
    if(k==="repay")A.repay({n:b.dataset.n});
    if(k==="prof"){const d=S.dyn[+b.dataset.d];A.prof({d:d.id,p:d.head.pid});return}
-   if(k==="tab"){close();A.tab({v:b.dataset.v});return}}catch(x){console.warn(x)}
+   if(k==="tab"){window.P3D||close();A.tab({v:b.dataset.v});return}}catch(x){console.warn(x)}
   if(pfn)panel(pfn)});
  const hud=root.querySelector(".m3hud");const hudUp=()=>{try{const q=P();hud.textContent=`💰 ${zl(Math.round(q.money))}${S.ap!=null?" · činnosť "+S.ap:""}`}catch(e){}};hudUp();
  function endQ(){const md=document.getElementById("modal");if(md&&!md.hidden)return;keys.clear();try{A.end()}catch(e){console.warn("3D koniec štvrťroka",e)}}
@@ -10937,11 +10947,12 @@ function tavernHTML(){const p0=P();if(cid!==p0.city)return`<h3>Hry v krčme</h3>
  const LODL=[],LODV=new T.Vector3();let LODF=0;try{g.traverse(o=>{if(!o.isMesh||o.isInstancedMesh||!o.geometry)return;for(let q=o;q;q=q.parent)if(q===me)return;if(!o.geometry.boundingSphere)o.geometry.computeBoundingSphere();const bs=o.geometry.boundingSphere;if(!bs)return;
    o.updateMatrixWorld(true);const sc=Math.max(Math.abs(o.matrixWorld.elements[0]),Math.abs(o.matrixWorld.elements[5]),Math.abs(o.matrixWorld.elements[10]))||1,r=bs.radius*sc;if(r>2.2||!isFinite(r))return;LODL.push({o,r})})}catch(e){console.warn("3D LOD",e)}
  st={root,renderer,scene,post,raf:0,near:null,off:()=>{removeEventListener("keydown",onKey,true);removeEventListener("keyup",onUp,true);removeEventListener("mousemove",onMove);removeEventListener("mouseup",onEnd);removeEventListener("resize",onRes)}};
- window.__m3={scene:()=>scene,figs:()=>FIGS,npc:(c,o)=>NPC3?NPC3(c,o):null,chkActs:()=>{const L2=inter.filter(it=>(it.kind==="npc"||it.kind==="stall")&&it.act),pr=L2.filter(it=>/^(Objednávateľ|Hlásnik)/.test(it.text));return pr.concat(L2.filter(it=>!pr.includes(it)).slice(0,14)).map(it=>({text:it.text,act:it.act}))},chk:()=>({inter:inter.map(it=>({x:it.x,z:it.z,r:it.r,text:typeof it.text==="string"?it.text:"",kind:it.kind||"",act:!!it.act})),lotb:LOTB.slice(),solids:solids.slice(),nav:NAV,p:[px,pz],cid,lots:S.lots.filter(l=>L.pos[l.id]).length,room:!!room}),close:()=>close(),ren:()=>renderer,lod:()=>({n:LODL.length,far:LODL.filter(it=>it.o.layers.mask===2).length,drl:DRL,merged:MRG.saved,mgroups:MRG.groups,done:MRG.done}),go:(x,z,y)=>{px=x;pz=z;if(y!=null)yaw=y},post:()=>post,sun:()=>sun,rows:()=>({n:ROWH.length,h:ROWH,p:[px,pz],paths:PATHS}),gates,cen,zoom:(d2,p2,hide)=>{dist=d2;pitch=p2;me.visible=!hide},dress:(list,back)=>{const p0=P(),o0=p0.outfit,t0=p0.tailor;const made=[];list.forEach((o,i)=>{let offS=null;try{p0.outfit=Object.assign({},o0,o.o||{});p0.tailor=o.t||{};if(o.look){p0.head.__l=p0.head.look;p0.head.look=Object.assign({},p0.head.look,o.look)}if(o.age){p0.head.__a=p0.head.age;p0.head.age=o.age}if(o.off){offS=CITY(p0.city).off[o.off];offS.__h=offS.h;offS.h=p0.id}const m=person(p0,"head",true,o.fem==null?undefined:o.fem);m.position.set(px+(i-(list.length-1)/2)*1.15,TH(px,pz),pz+3.2);m.rotation.y=back?0:Math.PI;scene.add(m);made.push(m)}catch(e){console.warn("dress",e&&e.stack||e)}finally{if(p0.head.__l){p0.head.look=p0.head.__l;delete p0.head.__l}if(p0.head.__a){p0.head.age=p0.head.__a;delete p0.head.__a}if(offS){offS.h=offS.__h;delete offS.__h}}});p0.outfit=o0;p0.tailor=t0;window.__dr=(window.__dr||[]).concat(made);return made.length},labs:()=>{const L=[];for(let r=0;r<6;r++){L.push(["Ján · rod Bielik","#2f5bb0",{k:"person",r}]);L.push(["Kováčska dielňa "+["","II","III","IV","V","V"][r],"#b8362c",{k:"bld",r}])}[["Radnica",null,{k:"pub"}],["Kamenný most rodu","#2f5bb0",{k:"pub"}],["Sídlo tvojho rodu","#2f5bb0",{k:"seat",r:4}],["Rod Pálfi","#7a1f2b",{k:"seat",r:1}],["Kuchárka",null,{k:"npc"}],["Mestský pisár",null,{k:"npc"}],["Spálňa",null,{k:"note"}],["Správa dielne",null,{k:"note"}],["Pivo a víno","#7a2740",{k:"stall"}],["Jarmok",null,{k:"event"}],["Mor v meste",null,{k:"event"}],["Vinica na svahu",null,{}]].forEach(q=>L.push(q));L.forEach((q,i)=>{const sp=label(q[0],q[1],.5,q[2]);sp.position.set(px-5.5+(i%4)*3.7,TH(px,pz)+5.6-Math.floor(i/4)*.95,pz+6);scene.add(sp)});return L.length},fast:()=>{try{renderer.shadowMap.enabled=false;renderer.setPixelRatio(.5);postOn=false;scene.traverse(o=>{if(o.isLight&&o.castShadow)o.castShadow=false;if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.needsUpdate=true)}})}catch(e){return String(e)}return'ok'},undress:()=>{(window.__dr||[]).forEach(m=>scene.remove(m));window.__dr=[]},calls:()=>renderer.info.render.calls,look:y=>{yaw=y},cam:()=>[cam.position.x,cam.position.y,cam.position.z,camD],go:(x,z)=>{px=x;pz=z},wet:(x,z)=>WET(x,z),step:(a,b,c,d)=>dryStep(a,b,c,d),brs:()=>BRX.map(q=>[q.a,q.b]),wg:()=>WG,sol:()=>solids,dbg:()=>DBG,wk:()=>WK.map(o=>[o.g.position.x,o.g.position.z,o.guard?1:0,o.g.visible?1:0]),ph:()=>ph,pick:n=>{const c={};for(let i=0;i<n;i++){const k=pickT({home:null}).k||'any';c[k]=(c[k]||0)+1}return c},nav:(a,t)=>NAV?NAV(a,t):null,navn:()=>NAVN,paths:()=>PATHS,lmv:()=>LMV,pg:()=>PGS,lm:()=>BRX.filter(q=>q.lm).map(q=>[q.a,q.b]),scene:()=>scene,har:()=>{try{const o=PRIK();return[o.W(0,16),o.W(0,6),o.W(-9,9),o.W(9,10)]}catch(e){return null}},plan:(a,t)=>planWay(a,t),way:()=>way,fam:()=>BRX.filter(q=>q.fam).map(q=>[q.a,q.b]),brh:(x,z)=>BRH(x,z),onb:(x,z)=>ONB(x,z),pos:()=>[px,pz],inter,enter:(k,o)=>enter(k,o||{}),leave:()=>leave(),room:()=>room};
+ window.__m3re=()=>{REST={c:cid,px,pz,yaw,pitch,dist};close();setTimeout(()=>{try{A.m3d()}catch(e){}},30)};
+ window.__m3={pos:()=>[px,pz],inRoom:()=>!!room,scene:()=>scene,figs:()=>FIGS,npc:(c,o)=>NPC3?NPC3(c,o):null,chkActs:()=>{const L2=inter.filter(it=>(it.kind==="npc"||it.kind==="stall")&&it.act),pr=L2.filter(it=>/^(Objednávateľ|Hlásnik)/.test(it.text));return pr.concat(L2.filter(it=>!pr.includes(it)).slice(0,14)).map(it=>({text:it.text,act:it.act}))},chk:()=>({inter:inter.map(it=>({x:it.x,z:it.z,r:it.r,text:typeof it.text==="string"?it.text:"",kind:it.kind||"",act:!!it.act})),lotb:LOTB.slice(),solids:solids.slice(),nav:NAV,p:[px,pz],cid,lots:S.lots.filter(l=>L.pos[l.id]).length,room:!!room}),close:()=>close(),ren:()=>renderer,lod:()=>({n:LODL.length,far:LODL.filter(it=>it.o.layers.mask===2).length,drl:DRL,merged:MRG.saved,mgroups:MRG.groups,done:MRG.done}),go:(x,z,y)=>{px=x;pz=z;if(y!=null)yaw=y},post:()=>post,sun:()=>sun,rows:()=>({n:ROWH.length,h:ROWH,p:[px,pz],paths:PATHS}),gates,cen,zoom:(d2,p2,hide)=>{dist=d2;pitch=p2;me.visible=!hide},dress:(list,back)=>{const p0=P(),o0=p0.outfit,t0=p0.tailor;const made=[];list.forEach((o,i)=>{let offS=null;try{p0.outfit=Object.assign({},o0,o.o||{});p0.tailor=o.t||{};if(o.look){p0.head.__l=p0.head.look;p0.head.look=Object.assign({},p0.head.look,o.look)}if(o.age){p0.head.__a=p0.head.age;p0.head.age=o.age}if(o.off){offS=CITY(p0.city).off[o.off];offS.__h=offS.h;offS.h=p0.id}const m=person(p0,"head",true,o.fem==null?undefined:o.fem);m.position.set(px+(i-(list.length-1)/2)*1.15,TH(px,pz),pz+3.2);m.rotation.y=back?0:Math.PI;scene.add(m);made.push(m)}catch(e){console.warn("dress",e&&e.stack||e)}finally{if(p0.head.__l){p0.head.look=p0.head.__l;delete p0.head.__l}if(p0.head.__a){p0.head.age=p0.head.__a;delete p0.head.__a}if(offS){offS.h=offS.__h;delete offS.__h}}});p0.outfit=o0;p0.tailor=t0;window.__dr=(window.__dr||[]).concat(made);return made.length},labs:()=>{const L=[];for(let r=0;r<6;r++){L.push(["Ján · rod Bielik","#2f5bb0",{k:"person",r}]);L.push(["Kováčska dielňa "+["","II","III","IV","V","V"][r],"#b8362c",{k:"bld",r}])}[["Radnica",null,{k:"pub"}],["Kamenný most rodu","#2f5bb0",{k:"pub"}],["Sídlo tvojho rodu","#2f5bb0",{k:"seat",r:4}],["Rod Pálfi","#7a1f2b",{k:"seat",r:1}],["Kuchárka",null,{k:"npc"}],["Mestský pisár",null,{k:"npc"}],["Spálňa",null,{k:"note"}],["Správa dielne",null,{k:"note"}],["Pivo a víno","#7a2740",{k:"stall"}],["Jarmok",null,{k:"event"}],["Mor v meste",null,{k:"event"}],["Vinica na svahu",null,{}]].forEach(q=>L.push(q));L.forEach((q,i)=>{const sp=label(q[0],q[1],.5,q[2]);sp.position.set(px-5.5+(i%4)*3.7,TH(px,pz)+5.6-Math.floor(i/4)*.95,pz+6);scene.add(sp)});return L.length},fast:()=>{try{renderer.shadowMap.enabled=false;renderer.setPixelRatio(.5);postOn=false;scene.traverse(o=>{if(o.isLight&&o.castShadow)o.castShadow=false;if(o.material){(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.needsUpdate=true)}})}catch(e){return String(e)}return'ok'},undress:()=>{(window.__dr||[]).forEach(m=>scene.remove(m));window.__dr=[]},calls:()=>renderer.info.render.calls,look:y=>{yaw=y},cam:()=>[cam.position.x,cam.position.y,cam.position.z,camD],go:(x,z)=>{px=x;pz=z},wet:(x,z)=>WET(x,z),step:(a,b,c,d)=>dryStep(a,b,c,d),brs:()=>BRX.map(q=>[q.a,q.b]),wg:()=>WG,sol:()=>solids,dbg:()=>DBG,wk:()=>WK.map(o=>[o.g.position.x,o.g.position.z,o.guard?1:0,o.g.visible?1:0]),ph:()=>ph,pick:n=>{const c={};for(let i=0;i<n;i++){const k=pickT({home:null}).k||'any';c[k]=(c[k]||0)+1}return c},nav:(a,t)=>NAV?NAV(a,t):null,navn:()=>NAVN,paths:()=>PATHS,lmv:()=>LMV,pg:()=>PGS,lm:()=>BRX.filter(q=>q.lm).map(q=>[q.a,q.b]),scene:()=>scene,har:()=>{try{const o=PRIK();return[o.W(0,16),o.W(0,6),o.W(-9,9),o.W(9,10)]}catch(e){return null}},plan:(a,t)=>planWay(a,t),way:()=>way,fam:()=>BRX.filter(q=>q.fam).map(q=>[q.a,q.b]),brh:(x,z)=>BRH(x,z),onb:(x,z)=>ONB(x,z),pos:()=>[px,pz],inter,enter:(k,o)=>enter(k,o||{}),leave:()=>leave(),room:()=>room};
  let last=performance.now(),tw=0;
  function frame(now){
   if(!st)return;st.raf=requestAnimationFrame(frame);FPSN++;renderer.info.reset();if(now-sigT>700){{const fe=root.querySelector(".m3fps");if(sigT){const fv=Math.round(FPSN*1000/(now-sigT));try{DRS(fv)}catch(e){}if(fe)fe.textContent=fv+" fps · kvalita "+["nízka","stredná","vysoká"][QLV]+(DRL?" · rozlíšenie "+Math.round(PRS[DRL]/PRS[0]*100)+" %":"")+" (Q)"}}FPSN=0;sigT=now;const md=document.getElementById("modal");hudUp();{const nv=root.querySelector(".m3nav");if(nv)nv.style.visibility=room?"hidden":""}if(!room&&pn.hidden&&(!md||md.hidden)&&sig()!==sig0){if(S.ci!==cid){close();return}REST={c:cid,px,pz,yaw,pitch,dist};close();setTimeout(()=>{try{A.m3d()}catch(e){}},30);return}}const dt=Math.max(0,Math.min(.05,(now-last)/1e3));last=now;tw+=dt;
-  const modal=!!document.querySelector("#modal:not([hidden])");
+  const modal=!!document.querySelector("#modal:not([hidden])");if(M3TITLE){yaw+=.0016;dist+=(30-dist)*.03;pitch+=(.36-pitch)*.03;keys.clear()}
   if(riverM&&riverM.material.map&&!snow)riverM.material.map.offset.x=-tw*.06;for(const w2 of WAT){w2[0].offset.x=-tw*w2[1]-Math.sin(tw*.5)*.02;w2[0].offset.y=tw*w2[2]}if(WAT0&&!snow){WAT0.offset.x=Math.sin(tw*.25)*.08;WAT0.offset.y=tw*.012}
   for(const o of smokes){o.t=(o.t+dt*.16)%1;o.s.position.set(o.q[0]+o.t*1.6,o.q[1]+o.t*4.5,o.q[2]+o.t*.5);const k2=.5+o.t*2.2;o.s.scale.set(k2,k2,1);o.s.material.opacity=.5*(1-o.t)}
   for(const o of boats){o.t=(((o.t+dt*o.v)%1)+1)%1;const fi=o.t*(o.rv.length-1),i0=Math.floor(fi),a=o.rv[i0],b=o.rv[Math.min(o.rv.length-1,i0+1)],u=fi-i0;o.g.position.set(a[0]+(b[0]-a[0])*u,.05+Math.sin(tw*2+o.t*40)*.04,a[1]+(b[1]-a[1])*u);o.g.rotation.y=-Math.atan2(b[1]-a[1],b[0]-a[0])}
@@ -12504,6 +12515,108 @@ window.DIELNESCENA={layout,get sel(){return sel},
 })();
 
 
+/* ==== js/hra3d.js ==== */
+/* Prešporok 1400 – celá hra v 3D (v299, etapa 1): hra sa spúšťa rovno v 3D meste. Úvodná obrazovka a založenie rodu sú pergamen nad
+   mestom, ktoré krúži v pozadí; ponuka (Esc), uloženie a koniec štvrťroka sú v 3D. Pôvodné 2D rozhranie ostáva skryté ako dočasná záloha
+   (ponuka → „Starý prehľad v 2D“, alebo adresa s ?2d; automatická kontrola ?kontrola beží v 2D). Herná logika sa nemení.
+   Etapa 6 (v321): 2D záloha je preč – hra je len v 3D (pôvodné panely žijú už iba v knihe); návod v 3D (ovládanie krok za krokom, potom Prvé kroky rodu);
+   automatická kontrola ?kontrola prechádza knihu, ponuku a 3D mesto. Autor: Dávid Mucha. */
+(function(){"use strict";
+ const P3D=true;window.P3D=true;
+ document.body.classList.add("p3d");
+ const css=document.createElement("style");css.textContent=`
+body.p3d.p3d-menu #app{position:fixed;inset:0;z-index:57;overflow:auto;background:transparent!important}
+body.p3d.p3d-menu .mainmenu,body.p3d.p3d-menu .newrod{background:transparent!important}
+body.p3d.p3d-menu .mainmenu .mm-bg{display:none}
+body.p3d.p3d-menu .mainmenu .mm-veil{background:radial-gradient(ellipse at 50% 45%,#0000 0,#0000 35%,#0008 100%)!important}
+body.p3d.p3d-menu .mm-in{background:#f6ecd2ee;color:#2b2117;border:2px solid #b8862b;border-radius:12px;box-shadow:0 10px 40px #000b;padding:22px 26px}
+body.p3d.p3d-menu .mm-in .mm-title,body.p3d.p3d-menu .mm-in .mm-kick,body.p3d.p3d-menu .mm-in .credit{color:#2b2117;text-shadow:none}
+body.p3d.p3d-menu .newrod>*{background:#f6ecd2f2;color:#2b2117}
+body.p3d:not(.p3d-menu) #app{display:none}
+#p3dcoach{position:fixed;z-index:56;top:56px;left:50%;transform:translateX(-50%);width:min(560px,60vw);background:#f6ecd2f2;color:#2b2117;border:2px solid #b8862b;border-radius:10px;box-shadow:0 6px 24px #000a;padding:8px 12px;font:15px/1.35 "EB Garamond",Georgia,serif}
+#p3dcoach .ch{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:3px}
+#p3dcoach .ch b{font-family:"Almendra SC","EB Garamond",Georgia,serif;color:#7a4f12}
+#p3dcoach .cb{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+#p3dcoach button{background:#fff8e4;color:#2b2117;border:1.5px solid #b8862b;border-radius:14px;padding:2px 10px;font:600 13px "EB Garamond",Georgia,serif;cursor:pointer}
+#p3dcoach button.pri{background:#b8862b;color:#fff}
+#p3dcoach kbd{font:700 13px Georgia,serif;background:#fff;border:1px solid #b8862b;border-radius:4px;padding:0 4px}
+#p3dcoach .dots{display:flex;gap:4px}#p3dcoach .dots i{width:8px;height:8px;border-radius:50%;background:#d8c49a}#p3dcoach .dots i.on{background:#b8862b}
+body.p3d-book #p3dcoach,body.p3d-menu #p3dcoach{display:none}
+body.p3d.p3d-menu #dside,body.p3d.p3d-menu #nreasel{z-index:58!important}
+body.p3d.p3d-menu #dscene{visibility:hidden}
+body.p3d.p3d-menu .mm-in .mm-title span{color:#9a6418!important}
+body.p3d #modal .mbox{background:#f6ecd2;color:#2b2117;border:2px solid #b8862b;font-family:"EB Garamond",Georgia,serif}
+#m3d.m3title>:not(canvas){display:none!important}
+body.p3d.p3d-book #dside{z-index:58!important;left:50%!important;right:auto!important;top:3vh!important;bottom:auto!important;transform:translateX(-50%)!important;width:min(820px,94vw)!important;height:84vh!important;max-height:84vh!important;box-shadow:0 18px 60px #000c!important;border-radius:12px}
+body.p3d.p3d-book #dscene{visibility:hidden}
+body.p3d.p3d-book.p3d-book2 #app{display:block!important;position:fixed;left:50%;top:3vh;transform:translateX(-50%);width:min(980px,94vw);height:84vh;overflow:auto;z-index:58;background:#efe4c8;border:2px solid #b8862b;border-radius:12px;box-shadow:0 18px 60px #000c;padding:10px 6px}
+body.p3d.p3d-book2 #app>header.top,body.p3d.p3d-book2 #app .mapsheet,body.p3d.p3d-book2 #app .navrow{display:none!important}
+#p3dbookbg{position:fixed;inset:0;z-index:57;background:radial-gradient(ellipse at center,#0006,#000b)}
+#p3dbookx{position:fixed;z-index:59;top:calc(3vh - 14px);left:calc(50% + min(410px,47vw) - 34px);width:34px;height:34px;border-radius:50%;border:2px solid #b8862b;background:#f6ecd2;color:#2b2117;font:700 18px Georgia,serif;cursor:pointer;box-shadow:0 3px 10px #0008}
+#p3dbookn{position:fixed;z-index:59;bottom:8px;max-width:94vw;left:50%;transform:translateX(-50%);display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+#p3dbookn button{background:#f6ecd2;color:#2b2117;border:1.5px solid #b8862b;border-radius:16px;padding:4px 12px;font:600 14px "EB Garamond",Georgia,serif;cursor:pointer}
+#p3dbookn button.on{background:#b8862b;color:#fff}
+#p3dload{position:fixed;inset:0;z-index:56;display:flex;align-items:center;justify-content:center;background:#1a120a;color:#e8d9b0;font:600 20px "EB Garamond",Georgia,serif;letter-spacing:.04em}`;document.head.appendChild(css);
+ /* uloženie: ukážkový rod v pozadí úvodnej obrazovky sa nikdy neuloží */
+ const save0=save;save=function(){if(S&&S.__demo)return;return save0.apply(this,arguments)};
+ let busy=false,lastS=null,lastT=-1,lastC=null,pend=false;
+ function demo(){try{newGame({name:"Bielik",first:"Ján",gender:"m",cls:START.cls,arms:Object.assign({},START.arms),look:Object.assign({},START.look,{g:"m"})});S.__demo=1;S.slot=0}catch(e){console.warn("3D úvod",e);S=null}}
+ function cover(on){let d=document.getElementById("p3dload");if(on&&!d){d=document.createElement("div");d.id="p3dload";d.textContent="Prešporok 1400";document.body.appendChild(d)}if(!on&&d)d.remove()}
+ /* otvorí 3D mesto pre aktuálny stav (pri ukážkovom rode ako úvodnú obrazovku) */
+ function go(){if(busy||!S)return;busy=true;lastS=S;lastT=S.turn;lastC=S.cur;pend=false;try{A.m3title(!!S.__demo)}catch(e){}
+  const op=()=>{try{A.m3d()}catch(e){}busy=false;let n=0;const w=setInterval(()=>{if(document.getElementById("m3d")||++n>60){clearInterval(w);cover(false)}},250)};
+  if(document.getElementById("m3d")){try{A.m3dx()}catch(e){}setTimeout(op,40)}else setTimeout(op,0)}
+ function sync(){if(busy)return;if(!S){demo();if(S)go();return}if(S!==lastS){cover(!S.__demo);go();return}if(S.turn!==lastT){lastT=S.turn;pend=true}if(!S.__demo&&S.cur!==lastC&&document.getElementById("m3d")){/* iné mesto (z knihy alebo mapy sveta): postav 3D mesto nanovo */bookOff();cover(true);go()}}
+ const r0=render;render=function(){const dm=S&&S.__demo;document.body.classList.toggle("p3d-menu",!S||!!dm);let r;if(dm){const s=S;S=null;try{r=r0.apply(this,arguments)}finally{S=s}}else r=r0.apply(this,arguments);try{sync()}catch(e){console.warn("3D hra",e)}try{bookCheck()}catch(e){}return r};
+ const m0=A.m3d;A.m3d=function(){if(S)lastC=S.cur;return m0.apply(this,arguments)};
+ /* po konci štvrťroka (keď sa zavrú hlásenia) sa mesto postaví znova – nové ročné obdobie, počasie, stavby */
+ setInterval(()=>{if(!pend||busy||!S||S.__demo)return;const md=document.getElementById("modal");if(md&&!md.hidden)return;if(!document.getElementById("m3d"))return;pend=false;try{window.__m3re&&window.__m3re()}catch(e){}},400);
+ /* kniha (etapa 2, v302–v311): obsah kariet z pôvodného rozhrania (bočný panel #dside) v knihe nad 3D mestom; 2D panely sa vtedy smú stavať aj pri otvorenom 3D; dole záložky; Esc, B, krížik alebo klik mimo zatvorí; denník je samostatný pergamen */
+ const BOOKT=[["mesto","Mesto"],["dielne","Dielne"],["trh","Trh a sklad"],["rod","Rod"],["dennik","Denník a kronika"]],
+  /* inštitúcie (etapa 4): odomknú sa v roku 1405 alebo s titulom (rovnako ako v 2D) */
+  BOOKW=[["svet","Svet"],["radnica","Radnica"],["rody","Rody"],["kariera","Kariéra"],["cirkev","Cirkev"],["dvor","Dvor"],["majetok","Majetok"],["stat","Štát"]],WGATE=BOOKW.map(x=>x[0]);
+ const wOpen=()=>{try{return S.year>=1405||((P()||{}).title||0)>=2}catch(e){return true}};let lastV="dielne",reqV="dielne";
+ const bookOpen=()=>document.body.classList.contains("p3d-book");
+ let bookW=null;function bookUI(){const wo=wOpen();if(bookW!==null&&bookW!==wo){["p3dbookbg","p3dbookx","p3dbookn"].forEach(id=>{const e=document.getElementById(id);if(e)e.remove()})}bookW=wo;if(!document.getElementById("p3dbookbg")){const bg=document.createElement("div");bg.id="p3dbookbg";bg.onclick=()=>A.p3dBook(null);document.body.appendChild(bg);const x=document.createElement("button");x.id="p3dbookx";x.title="Zavrieť knihu (Esc)";x.textContent="✕";x.onclick=()=>A.p3dBook(null);document.body.appendChild(x);const n=document.createElement("nav");n.id="p3dbookn";n.innerHTML=BOOKT.concat(wOpen()?BOOKW:[]).map(([v,l])=>'<button data-bv="'+v+'">'+l+'</button>').join("");n.onclick=e=>{const b=e.target.closest("[data-bv]");if(b)A.p3dBook(b.dataset.bv)};document.body.appendChild(n)}
+  const v=reqV==="dennik"?"dennik":S&&S.view;document.querySelectorAll("#p3dbookn [data-bv]").forEach(b=>b.classList.toggle("on",b.dataset.bv===v))}
+ function bookOff(){document.body.classList.remove("p3d-book","p3d-book2");["p3dbookbg","p3dbookx","p3dbookn"].forEach(id=>{const e=document.getElementById(id);if(e)e.remove()});try{const c=document.querySelector("#m3d canvas");if(c)c.focus()}catch(e){}}
+ function bookCheck(){if(!bookOpen())return;if(!S||S.__demo){bookOff();return}const ds=!!document.getElementById("dside");document.body.classList.toggle("p3d-book2",!ds&&S.view==="mesto");if(!ds&&S.view==="mesto"&&WGATE.includes(reqV)){toast("Táto časť sa otvorí v roku 1405 alebo s titulom šľachtica.","bad");reqV="mesto"}if(!ds&&S.view!=="mesto"){bookOff();toast("Túto časť knihy sa nepodarilo otvoriť.","bad");return}if(reqV!=="dennik"&&S.view)lastV=S.view;bookUI()}
+ const tab0=A.tab;A.tab=function(e){if(e&&e.v)reqV=e.v;const on=S&&!S.__demo&&document.getElementById("m3d");if(on)document.body.classList.add("p3d-book");const r=tab0.apply(this,arguments);if(on)setTimeout(bookCheck,60);return r};
+ A.p3dBook=function(e){if(e===null){bookOff();return}if(!S||S.__demo)return;const v=typeof e==="string"?e:(e&&e.v)||lastV;reqV=v;const jClose=()=>{const jc=[...document.querySelectorAll("#dside button")].find(b=>/Zavrieť/.test(b.textContent));if(jc)jc.click()};
+  if(v==="dennik"){document.body.classList.add("p3d-book");if(!document.body.classList.contains("hb")||!document.getElementById("dside"))A.tab({v:lastV&&lastV!=="mesto"&&lastV!=="dennik"?lastV:"dielne"});reqV="dennik";try{A.journal()}catch(x){}setTimeout(bookCheck,80);return}
+  if(reqV==="dennik"||document.body.classList.contains("hbj"))jClose();reqV=v;A.tab({v})};
+ /* sídlo: rodina, predkovia, kronika */
+ A.p3dRod=function(sec){A.p3dBook("rod");if(sec)setTimeout(()=>{try{A.rodSec({v:sec})}catch(x){}},40)};
+ /* ponuka (Esc) */
+ const B=(a,t,c)=>'<button class="gm-b'+(c?" "+c:"")+'" data-a="'+a+'"><span>'+t+'</span></button>';
+ A.gameMenu=function(){if(!S||S.__demo)return;queue({title:"Ponuka",html:'<div class="gm">'+B("mclose","▶ Pokračovať v hre")+B("gmSave","💾 Uložiť hru")+B("saves","📜 Uložené hry")+
+  '<div class="gm-two">'+B("music","♪ Hudba")+B("sfx","🔔 Zvuky")+B("help","📖 Kniha vedomostí")+B("settings","⚙ Nastavenia")+'</div>'+
+  B("toMenu","↩ Do hlavného menu")+B("menuQuit","🚪 Ukončiť hru","quit")+'</div><div class="muted gm-n">Klávesom Esc otvoríš túto ponuku kedykoľvek.</div>'})};
+ /* návod v 3D (etapa 6): päť krokov ovládania (hotové sa uložia v S.tut3), potom Prvé kroky rodu s tlačidlom do knihy */
+ const g0=A.gameMenu;let seenMenu=false;A.gameMenu=function(){seenMenu=true;return g0.apply(this,arguments)};
+ const TUT=[["Chôdza","Choď po meste klávesmi <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> alebo šípkami. Ťahaním myši sa rozhliadneš, kolieskom priblížiš, <kbd>Shift</kbd> je beh."],
+  ["Kniha rodu","Stlač <kbd>B</kbd> alebo tlačidlo 📖 Kniha hore. V knihe sú dielne, trh a sklad, rod, mesto a kronika – tam sa robia všetky rozhodnutia."],
+  ["Miesta v meste","Prejdi k budove so žltým výkričníkom (alebo klikni na úlohu vpravo hore) a pri nej stlač <kbd>E</kbd>. Dielne, trh, radnica aj sídlo sa otvárajú priamo v meste."],
+  ["Ponuka","<kbd>Esc</kbd> otvorí ponuku: uloženie, uložené hry, hudba, nastavenia a návrat do hlavného menu."],
+  ["Koniec štvrťroka","Keď máš všetko pripravené, stlač <kbd>K</kbd> alebo ⏭ Ďalší štvrťrok. Robotníci vyrobia tovar, rod zarobí a mesto sa zmení podľa ročného obdobia."]];
+ let tS=-1,tP=null,tT=-1,tB=false,tC=false,cH="";
+ function coach(){const old=document.getElementById("p3dcoach");const hide=()=>{if(old)old.remove();cH=""};
+  if(!S||S.__demo||!document.getElementById("m3d")||!window.__m3||!window.__m3.pos)return hide();
+  const i=S.tut3==null?0:S.tut3;let h="";
+  if(i<TUT.length){if(tS!==i){tS=i;tP=window.__m3.pos();tT=S.turn;tB=false;tC=false;seenMenu=false}
+   const bo=document.body.classList.contains("p3d-book");if(!bo)tC=true;else if(tC)tB=true;
+   let done=false;try{const q=window.__m3.pos();done=i===0?Math.hypot(q[0]-tP[0],q[1]-tP[1])>5:i===1?tB:i===2?(window.__m3.inRoom()||tB||!!document.querySelector("#m3d .m3panel:not([hidden])")):i===3?seenMenu:S.turn!==tT}catch(e){}
+   if(done){S.tut3=i+1;if(S.tut3>=TUT.length)toast("Návod je hotový. Ďalej ťa povedú Prvé kroky rodu a úlohy vpravo hore.","good");return coach()}
+   h='<div class="ch"><b>Návod · '+TUT[i][0]+'</b><span class="dots">'+TUT.map((_,k)=>'<i class="'+(k<=i?"on":"")+'"></i>').join("")+'</span></div><div>'+TUT[i][1]+'</div><div class="cb"><button data-c="skip">Preskočiť návod</button></div>'}
+  else if(!S.guideOff&&typeof window.guideSteps==="function"&&S.year<(S.startY||1400)+4){let st=[];try{st=window.guideSteps()}catch(e){}const n=st.filter(x=>x[1]).length,nx=st.find(x=>!x[1]);
+   if(nx)h='<div class="ch"><b>Prvé kroky rodu · '+n+' z '+st.length+'</b></div><div>Ďalší krok: <b>'+nx[0]+'</b></div><div class="cb">'+(nx[2]?'<button class="pri" data-c="g" data-v="'+nx[2]+'">📖 Otvoriť: '+nx[3]+'</button>':'<button class="pri" data-c="auto">Zapnúť správcu rodu</button>')+'<button data-c="off">Skryť</button></div>'}
+  if(!h)return hide();if(h===cH&&old)return;cH=h;
+  let d=old;if(!d){d=document.createElement("div");d.id="p3dcoach";d.onclick=e=>{const b=e.target.closest("[data-c]");if(!b||!S)return;const c=b.dataset.c;
+   if(c==="skip")S.tut3=TUT.length;else if(c==="off")S.guideOff=1;else if(c==="auto"){try{A.autoT()}catch(x){}}else if(c==="g")A.p3dBook(b.dataset.v);try{save()}catch(x){}coach()};document.body.appendChild(d)}
+  d.innerHTML=h}
+ setInterval(()=>{try{coach()}catch(e){}},300);
+ cover(true);setTimeout(()=>{try{render()}catch(e){}},0);
+})();
 /* ==== záverečné vykreslenie ==== */
 /* Uložená hra sa prvý raz vykreslí už na konci game.js, ešte pred úpravami ďalších modulov (napr. zjednodušené záložky).
    Tu sa po načítaní všetkých modulov vykreslí znova, aby hráč hneď videl konečnú podobu rozhrania. */

@@ -111,6 +111,7 @@
     if (e.key !== "Escape" || e.repeat) return;
     var box = document.getElementById("modal");
     if (!S || (box && !box.hidden) || document.querySelector(".lens")) return;
+    if (window.P3D && (S.__demo || document.getElementById("m3d"))) return;
     if (e.target && e.target.closest && e.target.closest("input,select,textarea")) return;
     e.preventDefault(); e.stopPropagation();
     gameMenu();

@@ -2,7 +2,7 @@
 
 *[English version](README.en.md)*
 
-Obchodná a dynastická hra zo stredovekej Európy, ktorá beží priamo v prehliadači na počítači.
+Obchodná a dynastická hra zo stredovekej Európy, ktorá beží priamo v prehliadači na počítači. Celá hra sa hrá v 3D meste: chodíš po uliciach, vchádzaš do dielní, na trh, do radnice aj do sídla rodu a rozhodnutia robíš v pergamenovej knihe rodu.
 
 **▶ [Spustiť hru](https://davidmucha1999.github.io/presporok-1400/)**
 
@@ -14,37 +14,39 @@ Netreba nič inštalovať. Hra je určená pre počítač s klávesnicou a myšo
 - **Mestá Európy roku 1400** – od Prešporku cez Viedeň, Budín, Krakov, Prahu, Norimberg a Benátky až po Paríž a Londýn, každé s vlastným pôdorysom.
 - **Rod a rodina** – sídlo, ktoré rastie od chalupy po hrad, sobáše, deti a dedičia, rodokmeň a predkovia.
 - **Politika a postup** – voľby v rade, mestské úrady, cirkev, dvor a tituly od slobodníka po kráľa.
-- **Živé mesto** – ilustrované scény každej sekcie, ročné obdobia, počasie a udalosti v kronike.
-- **3D mesto** – prechádzka mestom s budovami presne podľa mapy: vstup do dielní a sídiel, trh so stánkami, rozhovory s hlavami rodov, zákazky na námestí, mešťania, ktorí chodia, pozerajú sa na teba, zdravia a rozprávajú sa, deň a noc, počasie a pohľad z výšky.
+- **Kniha rodu** – pergamenová kniha nad 3D mestom (kláves `B`) so záložkami Mesto, Dielne, Trh a sklad, Rod, Denník a kronika a po odomknutí Svet, Radnica, Rody, Kariéra, Cirkev, Dvor, Majetok a Štát. Otvára sa aj priamo na miestach v meste.
+- **Návod v 3D** – krok za krokom ukáže chôdzu, knihu, miesta v meste, ponuku a koniec štvrťroka, potom ťa vedú Prvé kroky rodu.
+- **3D mesto** – budovy presne podľa mapy, brány do 11 ďalších miest Európy: vstup do dielní a sídiel, trh so stánkami, rozhovory s hlavami rodov, zákazky na námestí, mešťania, ktorí chodia, pozerajú sa na teba, zdravia a rozprávajú sa, deň a noc, počasie a pohľad z výšky.
 
 ## Ovládanie v skratke
 
 | Režim | Klávesy |
 |---|---|
-| Hra | `1`–`9`, `0`, `-`, `=` karty, `M` mesto, `D` dielne, `T` trh, `R` rod, `Medzerník` ukončiť štvrťrok, `Z` vrátiť akciu, `F` celá obrazovka, `?` všetky skratky |
-| 3D mesto | `W` `A` `S` `D` alebo šípky chôdza, `Shift` beh, ťahanie myšou pohľad, `E` použiť, `M` pohľad z výšky, `T` miesta, `Q` kvalita grafiky |
+| Pohyb | `W` `A` `S` `D` alebo šípky chôdza, `Shift` beh, ťahanie myšou pohľad, koliesko priblíženie, `V` pohľad z očí, `M` pohľad z výšky |
+| Hra | `E` použiť miesto, `B` kniha rodu, `K` ďalší štvrťrok, `T` miesta, `N` mapka, `Esc` ponuka (uloženie, nastavenia), `Q` kvalita grafiky |
 
 ## Architektúra
 
 ```
-zdroj/01-game.js … 37-dielnescena.js, 99-zaver.js   zdrojové moduly
+zdroj/01-game.js … 38-hra3d.js, 99-zaver.js   zdrojové moduly
         │  node nastroje/zostav.js
         ▼
 js/hra.js  ──  index.html načíta jeden súbor (so záložným načítaním po moduloch)
-nastroje/kontrola.js  ──  automatická kontrola rozhrania a 3D mesta (index.html?kontrola)
+nastroje/kontrola.js  ──  automatická kontrola knihy, ponuky a 3D mesta (index.html?kontrola)
 ```
 
 - **Moduly:** číslo v názve určuje poradie. `01-game.js` je jadro (stav hry, ekonomika, pravidlá, hlavné obrazovky, väčšina generovanej SVG grafiky). Ďalšie moduly pridávajú funkcie tak, že obalia existujúce funkcie, takže každá funkcia hry má vlastný súbor.
 - **Stav a rozhranie:** celá hra je jeden objekt stavu `S`, ktorý sa ukladá skomprimovaný (lz-string) do `localStorage`. `render()` vykreslí rozhranie zo stavu, tlačidlá s atribútom `data-a` volajú akcie v objekte `A` a tie zmenia stav a vykreslia znova.
+- **Hra len v 3D:** rámec hry (`38-hra3d.js`) spúšťa hru rovno v 3D meste. Úvodná obrazovka je pergamen nad mestom, ktoré krúži v pozadí. Pôvodné panely sa zobrazujú ako stránky knihy rodu nad 3D mestom a po konci štvrťroka sa mesto postaví nanovo (ročné obdobie, počasie, stavby).
 - **Grafika:** mapy miest, budovy, erby, portréty aj scény sa generujú v kóde ako SVG.
 - **Postavy:** sú celé generované v kóde, bez externých modelov. Telo je jeden hladký povrch s kostrou (SkinnedMesh), takže sa lakte, kolená, plecia a krk ohýbajú plynulo. Hlava je tvarovaná (obočie, očné jamky, lícne kosti, nos, brada) podľa pohlavia, veku a variantu a tvár je namaľovaná do textúry s výrazmi a vráskami podľa veku. Oči sú očné gule s viečkami, ktoré žmurkajú a pozerajú sa na hráča. Vlasy, brady, vrkoče aj drdoly sú z prameňov, ruky majú prsty v rôznych polohách (zovretie, otvorená dlaň, ukazovák), postavy majú rôznu stavbu tela (chudé, zavalité, s bruchom), dobovú obuv a deti vlastné proporcie. Odev je vo vrstvách podľa role a bohatstva (košeľa, zástera, kapucňa s pelerínou, závoj, klobúky, gombíky, kožušina) so záhybmi, textúrou látky, zatienením v záhyboch a jemným svetlým obrysom podľa dennej doby. Chôdza sa počíta zo skutočnej rýchlosti, aby nohy nekĺzali, telo pri kroku klesá a kolíše, ruky sa kývu s oneskorením. V stoji postavy dýchajú, prenášajú váhu, obzerajú sa, pozerajú na hráča a zdravia ho. Pelerína, plášť, zástera, dlhé vlasy a závoj sa hýbu na pružine s oneskorením pri chôdzi, otáčaní a vo vetre. V rozhovore postavy gestikulujú, chodci nosia vrecia a vedrá na jarme a deti behajú. Kov a zlato sa lesknú, v daždi je odev mokrý a v zime majú postavy sneh na pleciach. Pod každou postavou je mäkký kontaktný tieň a vzdialené postavy sa kreslia zjednodušene v dvoch hromadných kresleniach, takže mesto môže byť plnšie. Chodci sa obchádzajú a postavy v diaľke sa animujú zriedkavejšie.
-- **3D mesto:** stavia sa z tých istých údajov ako 2D mapa (ulice, hradby, pozemky a budovy na nich), takže vždy zodpovedá hre. Používa vlastné spracovanie obrazu (HDR, ACES, opar, bloom, tiene oblakov, mokrá zem z hĺbkovej mapy). Pre výkon zlučuje nehybné objekty (asi 930 do 100), skrýva drobnosti v diaľke a mení rozlíšenie podľa FPS. Vykresľovacích volaní je tak o 25–37 % menej.
+- **3D mesto:** stavia sa z tých istých údajov ako mapa mesta (ulice, hradby, pozemky a budovy na nich), takže vždy zodpovedá hre. Používa vlastné spracovanie obrazu (HDR, ACES, opar, bloom, tiene oblakov, mokrá zem z hĺbkovej mapy). Pre výkon zlučuje nehybné objekty (asi 930 do 100), skrýva drobnosti v diaľke a mení rozlíšenie podľa FPS. Vykresľovacích volaní je tak o 25–37 % menej. Na slabšom počítači sa kvalita grafiky sama zníži, ak mesto beží pomaly aj pri najnižšom rozlíšení.
 
 ## Technické údaje
 
 - Čistý JavaScript, HTML a CSS bez frameworku. 3D mesto používa [three.js](https://threejs.org/) (r128) s vlastným spracovaním obrazu (HDR, tone mapping, bloom, tiene oblakov) a optimalizáciou vykresľovania (zlučovanie geometrie, úroveň detailu, dynamické rozlíšenie).
 - Zdrojový kód je rozdelený do modulov v priečinku `zdroj/`. Skript `node nastroje/zostav.js` ich skontroluje, spojí do `js/hra.js` a zvýši verziu v `index.html`.
-- Automatická kontrola (`index.html?kontrola`) prejde všetky sekcie hry aj 3D mesto a nahlási chyby vykreslenia, zakryté ovládanie, presahujúce panely, prekrývajúce sa budovy a nedostupné miesta.
+- Automatická kontrola (`index.html?kontrola`) prejde lištu, návod, ponuku, všetky záložky knihy rodu aj 3D mesto a nahlási chyby, stránky mimo okna, prekryté alebo pretŕčajúce časti, prekrývajúce sa budovy a nedostupné miesta.
 - Postup hry sa ukladá len v prehliadači hráča.
 - Kód vznikal s pomocou AI nástrojov.
 

@@ -2,7 +2,7 @@
 
 *[Slovenská verzia](README.md)*
 
-A trading and dynasty game set in medieval Europe, running directly in the desktop browser. The game itself is in Slovak.
+A trading and dynasty game set in medieval Europe, running directly in the desktop browser. The game itself is in Slovak. The whole game is played in a 3D town: you walk the streets, enter workshops, the market, the town hall and your family seat, and make decisions in a parchment family book.
 
 **▶ [Play the game](https://davidmucha1999.github.io/presporok-1400/)**
 
@@ -14,26 +14,27 @@ Nothing to install. Built for a desktop computer with keyboard and mouse (Chrome
 - **European cities around 1400** – from Prešporok (today's Bratislava) through Vienna, Buda, Kraków, Prague, Nuremberg and Venice to Paris and London, each with its own town layout.
 - **Family and dynasty** – a family seat that grows from a cottage to a castle, marriages, children and heirs, family tree and ancestors.
 - **Politics and advancement** – council elections, city offices, the Church, the royal court and titles from freeman to king.
-- **Living town** – illustrated scenes for every section, seasons, weather and a chronicle of events.
-- **3D town** – walk through the town with buildings placed exactly as on the map: enter workshops and family seats, shop at market stalls, talk to other families, take commissions on the square, townspeople who walk, look at you, greet you and chat with each other, day and night, weather and a bird's-eye view.
+- **Family book** – a parchment book over the 3D town (key `B`) with tabs for the town, workshops, market and warehouse, family, journal and chronicle, and once unlocked the world, town hall, families, career, Church, court, property and state. It also opens from places in the town.
+- **3D tutorial** – teaches walking, the book, places in the town, the menu and ending a quarter step by step, then the family's first steps take over.
+- **3D town** – buildings placed exactly as on the map, gates to 11 other European cities: enter workshops and family seats, shop at market stalls, talk to other families, take commissions on the square, townspeople who walk, look at you, greet you and chat with each other, day and night, weather and a bird's-eye view.
 
 ## Controls
 
 | Mode | Keys |
 |---|---|
-| Game | `1`–`9`, `0`, `-`, `=` tabs, `M` town, `D` workshops, `T` market, `R` family, `Space` end the quarter, `Z` undo, `F` fullscreen, `?` all shortcuts |
-| 3D town | `W` `A` `S` `D` or arrows to walk, `Shift` run, drag the mouse to look, `E` interact, `M` bird's-eye view, `T` places, `Q` graphics quality |
+| Movement | `W` `A` `S` `D` or arrows to walk, `Shift` run, drag the mouse to look, wheel to zoom, `V` first-person view, `M` bird's-eye view |
+| Game | `E` interact, `B` family book, `K` next quarter, `T` places, `N` minimap, `Esc` menu (save, settings), `Q` graphics quality |
 
 ## Architecture
 
 The game is plain JavaScript, HTML and CSS with no framework and no server. The only libraries are [three.js](https://threejs.org/) r128 for the 3D town and lz-string for compressing saves.
 
 ```
-zdroj/01-game.js … 37-dielnescena.js, 99-zaver.js   source modules (~12,000 dense lines)
+zdroj/01-game.js … 38-hra3d.js, 99-zaver.js   source modules (~12,000 dense lines)
         │  node nastroje/zostav.js
         ▼
 js/hra.js  ──  index.html loads one bundle (with a per-module fallback loader)
-nastroje/kontrola.js  ──  automated UI and 3D checks (index.html?kontrola)
+nastroje/kontrola.js  ──  automated book, menu and 3D checks (index.html?kontrola)
 ```
 
 ### Source modules and build
@@ -49,24 +50,32 @@ nastroje/kontrola.js  ──  automated UI and 3D checks (index.html?kontrola)
 - The economy runs in quarter-year turns: production, prices from supply and demand, AI families that trade, build and run for office, and random events written to the chronicle.
 - Almost all graphics are generated in code: city maps, buildings, coats of arms, portraits and the illustrated scenes are SVG built from the game state. Only backgrounds and a few illustrations are image files.
 
+### 3D-only shell (`zdroj/38-hra3d.js`)
+
+- The game used to have a 2D interface with an optional 3D town. It was moved fully into 3D in six stages, while the original panels stayed working as a fallback until every part had a 3D home; then the fallback was removed.
+- The game starts straight in the 3D town. The title screen is a demo game (never saved) with an orbiting camera behind a parchment menu.
+- The original panels are shown as pages of a family book centred over the 3D town, so all game rules and actions are reused unchanged. Places in the town (workshops, stalls, the town hall, the castle, the church, the family hall) open the matching book page.
+- After each quarter the town is rebuilt in place for the new season, weather and buildings, and changing city rebuilds it for the new city.
+
 ### 3D town (`zdroj/35-mesto3d.js`)
 
-- **Built from the same data as the 2D map.** Streets, walls, gates, river and building plots are converted from map coordinates to world coordinates. Every building is chosen by what really stands on the plot: the craft and level of a workshop, the level of a family seat, public buildings. The 3D town therefore always matches the game.
+- **Built from the same data as the town map.** Streets, walls, gates, river and building plots are converted from map coordinates to world coordinates. Every building is chosen by what really stands on the plot: the craft and level of a workshop, the level of a family seat, public buildings. The 3D town therefore always matches the game.
 - **Image pipeline.** The scene renders into an HDR (half-float) target followed by a custom post-processing shader: ACES tone mapping, distance haze, bloom, a sun or moon disc, cloud shadows and wet ground in rain. Cloud shadows and puddles reconstruct world position from the depth buffer.
-- **Game connection.** Interaction points (enter a workshop, talk to a family head, buy at a stall, accept a commission) call the same actions as the 2D interface. Workshops under construction get scaffolding with workers, and idle ones get weeds and a boarded door, mirroring the 2D map.
+- **Game connection.** Interaction points (enter a workshop, talk to a family head, buy at a stall, accept a commission) call the same game actions as the family book. Workshops under construction get scaffolding with workers, and idle ones get weeds and a boarded door.
 - **Procedural characters.** Townspeople are generated entirely in code, with no external models. Each body is one smooth skinned mesh on a small skeleton, so elbows, knees, shoulders and neck bend smoothly. The head is sculpted (brow ridge, eye sockets, cheekbones, nose, chin) by sex, age and variant, and the face is painted into a canvas texture with expressions and age wrinkles. Eyes are real eyeballs with lids that blink and look at the player. Hair, beards, braids and buns are built from strands, hands switch between poses (grip, open palm, pointing), bodies vary in build (thin, stocky, with a belly), shoes are period-style and children have their own proportions. Clothing is layered by role and wealth (shirt, apron, hood with shoulder cape, veil, hats, buttons, fur) with folds, a fabric texture, baked occlusion in the folds and a rim light that follows the time of day. Animation is procedural: the gait is derived from the measured speed so feet do not slide, the pelvis drops, sways and twists with each step, arms swing with a lag, and running adds a forward lean and bent elbows. Standing figures breathe, shift their weight, change arm poses, look around, turn their head to the player and nod in greeting. Arms or legs driven by other code (a guard's spear, a seated person) are detected automatically and left alone. Capes, cloaks, aprons, long hair and veils swing on damped springs driven by walking, turning and wind. People gesture while talking, some carry sacks or buckets on a yoke, children run, metal and gold get specular highlights, clothes look wet in rain and collect snow in winter, every figure has a soft instanced contact shadow, and distant figures are drawn as instanced proxies so the town can hold more people. Pedestrians steer around each other and the player, and distant figures are animated less often and drawn without shadows.
 - **Performance.** A quality switch (`Q`) and three optimizations:
   - Static meshes with identical material properties are merged into one geometry two seconds after the town opens (about 930 objects into about 100).
   - Small distant objects are moved to a hidden render layer, a simple level of detail.
-  - The pixel ratio adapts to the measured frame rate.
+  - The pixel ratio adapts to the measured frame rate, and if the town is still slow at the lowest resolution, the graphics quality drops one level automatically (unless the player chose it with `Q`).
 
   Draw calls dropped by 25–37 % (street view about 3,270 → 2,450, bird's-eye view about 4,790 → 3,030) with no visible change.
 
 ### Automated checks (`nastroje/kontrola.js`)
 
-Opening `index.html?kontrola` walks through every section and sub-section of the game and then the 3D town, and shows a table of findings:
+Opening `index.html?kontrola` with a saved game walks through the 3D shell, every tab of the family book and then the 3D town, and shows a table of findings:
 
-- **2D sections:** render errors, clickable spots covered by other elements, panels that overflow the window or overlap the toolbar, content sticking out of panels.
+- **Shell:** the toolbar buttons and tutorial are present and do not cover other controls; the pause menu opens with all its items.
+- **Family book:** every tab and sub-section opens without errors, the page fits the window, the tabs do not cover it and no content sticks out.
 - **3D town:**
   - the scene builds and actually renders;
   - every plot from the map has its building, and no buildings overlap;
@@ -78,7 +87,8 @@ The check restores the save and `localStorage` afterwards.
 
 ## Notable challenges
 
-- **Keeping 2D and 3D consistent.** An earlier version filled the 3D town with generated row houses for atmosphere. It looked busy but no longer matched the map, so the 3D town now shows only real buildings and the automated check verifies the match.
+- **Moving a whole 2D game into 3D without rewriting the rules.** The existing panels became pages of a book over the 3D scene, and the move went tab by tab with a fallback until nothing was missing.
+- **Keeping the map and 3D consistent.** An earlier version filled the 3D town with generated row houses for atmosphere. It looked busy but no longer matched the map, so the 3D town now shows only real buildings and the automated check verifies the match.
 - **Rendering a whole town in the browser.** WebGL draw calls were the bottleneck rather than polygons, which led to geometry merging, layer-based LOD and dynamic resolution instead of simplifying the models.
 - **One deployable file without a bundler.** A small Node script with per-module syntax checks and a fallback loader keeps development modular while shipping a single file.
 

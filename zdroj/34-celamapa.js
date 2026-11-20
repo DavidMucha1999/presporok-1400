@@ -11,7 +11,7 @@ const setPref=v=>{try{localStorage.setItem("hbOn",v?"1":"0")}catch(e){}};
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const q=s=>document.querySelector(s);
 const txt=e=>e?e.textContent.replace(/\s+/g," ").trim():"";
-const mode=()=>{if(!hasS()||!desk()||!pref()||document.getElementById("m3d")||document.body.classList.contains("jmapon"))return null;if(S.view==="mesto")return q(".mapsheet #kcity")?"map":null;return q("header.top .tabs .tab")&&q(".wrap.pad")?"sheet":null};
+const mode=()=>{if(!hasS()||!desk()||!pref()||(document.getElementById("m3d")&&!(document.body.classList.contains("p3d-book")&&S.view!=="mesto"))||document.body.classList.contains("jmapon"))return null;if(S.view==="mesto")return q(".mapsheet #kcity")?"map":null;return q("header.top .tabs .tab")&&q(".wrap.pad")?"sheet":null};
 const active=()=>mode()!==null;
 let open=false,lastH="";
 const IC={book:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5c3-1 5-1 8 1v14c-3-2-5-2-8-1zM20 5c-3-1-5-1-8 1v14c3-2 5-2 8-1z"/></svg>',
