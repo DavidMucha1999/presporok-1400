@@ -31,8 +31,8 @@
     if (!pg || !shown(pg)) { found.push("chyba: kniha sa neotvorila"); return; }
     const r = pg.getBoundingClientRect();
     if (r.left < -1 || r.top < -1 || r.right > innerWidth + 1 || r.bottom > innerHeight + 1) found.push(`stránka presahuje okno (${Math.round(r.left)},${Math.round(r.top)}–${Math.round(r.right)},${Math.round(r.bottom)})`);
-    const nv = document.getElementById("p3dbookn"); if (!nv || !shown(nv)) found.push("chýbajú záložky knihy");
-    else for (const b of nv.querySelectorAll("button")) { const a = area(r, b.getBoundingClientRect()); if (a > 60) { found.push(`stránku prekrýva záložka „${b.textContent}“ (${Math.round(a)} px²)`); break; } }
+    for (const u of document.querySelectorAll("#m3d .m3top>*")) { if (!shown(u)) continue; const a = area(r, u.getBoundingClientRect()); if (a > 60) { found.push(`stránka prekrýva lištu (${name(u)}, ${Math.round(a)} px²)`); break; } }
+    if (r.width > innerWidth * .62) found.push("stránka zakrýva skoro celé mesto");
     for (const el of pg.querySelectorAll("*")) {
       if (!shown(el) || clipped(el, pg)) continue; const er = el.getBoundingClientRect();
       if (er.right > r.right + 4 || er.left < r.left - 4) { found.push(`v knihe pretŕča ${name(el)} (${Math.round(er.left)}–${Math.round(er.right)} pri stránke ${Math.round(r.left)}–${Math.round(r.right)})`); break; }
@@ -51,12 +51,13 @@
     const ce = console.error, cw = console.warn;
     console.error = function () { errs.push([...arguments].map(String).join(" ")); return ce.apply(this, arguments); };
     console.warn = function () { if ([...arguments].some(a => a instanceof Error)) errs.push([...arguments].map(String).join(" ")); return cw.apply(this, arguments); };
-    const rows = [];
-    const wo = (() => { try { return S.year >= 1405 || ((P() || {}).title || 0) >= 2; } catch (e) { return true; } })();
+    const rows = []; window.__kontrola = 1;
+    const wo = (() => { try { if (S.rpg) return (S.rpg.rank | 0) >= 4; return S.year >= 1405 || ((P() || {}).title || 0) >= 2; } catch (e) { return true; } })();
     try {
       // 1) lišta 3D mesta a návod
       { const f = [], top = document.querySelector("#m3d .m3top");
-        for (const [a, t] of [["p3dBook", "Kniha"], ["gameMenu", "Ponuka"]]) { const b = document.querySelector(`#m3d [data-a="${a}"]`); if (!b || !shown(b)) f.push(`na lište chýba tlačidlo ${t}`); }
+        for (const [a, t] of [["p3dReg", "Kniha miest"], ["gameMenu", "Ponuka"]]) { const b = document.querySelector(`#m3d [data-a="${a}"]`); if (!b || !shown(b)) f.push(`na lište chýba tlačidlo ${t}`); }
+        if (S.rpg) { rows.push({ sekcia: "3D: lišta", stav: stav(f), klikacich: document.querySelectorAll("#m3d .m3top button").length, nalez: f.join(" · ") }); } else {
         S.tut3 = 0; S.guideOff = 0; await wait(700);
         const co = document.getElementById("p3dcoach");
         if (!co || !shown(co)) f.push("návod sa neukázal");
@@ -65,7 +66,27 @@
         S.tut3 = 5; await wait(700);
         if (S.year < (S.startY || 1400) + 4 && typeof window.guideSteps === "function" && window.guideSteps().some(x => !x[1]) && !(document.getElementById("p3dcoach"))) f.push("po návode sa neukázali Prvé kroky rodu");
         S.tut3 = keep.tut3; S.guideOff = keep.guideOff;
-        rows.push({ sekcia: "3D: lišta a návod", stav: stav(f), klikacich: document.querySelectorAll("#m3d .m3top button").length, nalez: f.join(" · ") }); }
+        rows.push({ sekcia: "3D: lišta a návod", stav: stav(f), klikacich: document.querySelectorAll("#m3d .m3top button").length, nalez: f.join(" · ") }); } }
+      // 1b) kniha miest (B) a tabule v meste
+      { const f = []; errs.length = 0; try { A.p3dReg(); } catch (e) { errs.push(String(e)); } await wait(300);
+        const rg = document.getElementById("p3dreg");
+        if (!rg || !shown(rg)) f.push("chyba: kniha miest sa neotvorila");
+        else { const r = rg.getBoundingClientRect(); if (r.top < -1 || r.bottom > innerHeight + 1 || r.right > innerWidth + 1) f.push("kniha miest presahuje okno");
+          if (S.rpg) { for (const t of ["Denník postavy", "Hlad", "Únava", "Kam ísť"]) if (!rg.textContent.includes(t)) f.push(`v denníku postavy chýba „${t}“`); }
+          else for (const v of ["dielne", "trh", "rod", "mesto"]) if (!rg.querySelector(`[data-r="${v}"]`)) f.push(`v knihe miest chýba ${v}`); }
+        try { A.p3dReg(); } catch (e) { } await wait(200); if (document.getElementById("p3dreg")) f.push("kniha miest sa nezavrela");
+        let nb = 0; try { nb = window.__m3.chk().inter.filter(it => it.kind === "board").length; } catch (e) { } if (nb < 1) f.push("v meste nie je žiadna tabuľa");
+        errs.forEach(m => f.push("chyba: " + m.slice(0, 160)));
+        rows.push({ sekcia: "3D: kniha miest a tabule", stav: stav(f), klikacich: nb, nalez: f.join(" · ") }); }
+      // 1c) RPG: pracoviská, miesta v meste a návod
+      if (S.rpg && window.RPG && RPG.jobs) { const f = [], M = window.__m3; await wait(1200);
+        for (const [v, n] of [["pole", "pole s gazdom"], ["vino", "vinohrad"], ["ryby", "rybár"], ["nosic", "kupec s vozom"], ["sennik", "senník"], ["jedlo", "pekárka"], ["nocl", "nocľaháreň"], ["pisar", "mestský pisár"], ["dielna", "dielňa rodu"]]) { let p = null; try { p = M.placeOf(v); } catch (e) { } if (!p) f.push(`v meste chýba ${n}`); }
+        for (const key of ["pole", "vino"]) { const n = RPG.jobs.cl(key).length; if (n && n !== 12) f.push(`${key}: ${n} miest namiesto 12`); }
+        const t0 = S.rpg.tut, g0 = S.rpg.goalOff; S.rpg.tut = 0; await wait(900); const rc = document.getElementById("rpgcoach");
+        if (!rc || !shown(rc)) f.push("návod RPG sa neukázal"); else { const r = rc.getBoundingClientRect(); for (const el of document.querySelectorAll("#m3d .m3top>*,#m3d .m3nav>*")) { if (!shown(el)) continue; const ar = area(r, el.getBoundingClientRect()); if (ar > 200) { f.push(`návod RPG prekrýva ${name(el)} (${Math.round(ar)} px²)`); break; } } }
+        S.rpg.tut = 5; S.rpg.goalOff = 0; await wait(900); if (RPG.next && RPG.next() && !document.getElementById("rpgcoach")) f.push("po návode sa neukázal ďalší cieľ");
+        S.rpg.tut = t0; S.rpg.goalOff = g0;
+        rows.push({ sekcia: "RPG: pracoviská, miesta a návod", stav: stav(f), klikacich: M.interA ? M.interA().filter(it => it.kind === "job").length : 0, nalez: f.join(" · ") }); }
       // 2) ponuka (Esc)
       { const f = []; errs.length = 0; try { A.gameMenu(); } catch (e) { errs.push(String(e)); } await wait(400);
         const md = document.getElementById("modal");
@@ -79,21 +100,21 @@
       // 3) kniha rodu: každá záložka a podsekcia
       for (const [view, extra, gated] of BOOK) {
         const label = "kniha: " + view + (extra ? ":" + Object.values(extra)[0] : "");
-        if (gated && !wo) { rows.push({ sekcia: label, stav: "v poriadku", klikacich: 0, nalez: "zamknuté do roku 1405 alebo titulu (záložka sa neukazuje)" }); continue; }
+        if (S.rpg && view === "svet") { rows.push({ sekcia: label, stav: "v poriadku", klikacich: 0, nalez: "v RPG sa hrá len v Prešporku (stránka sa nepoužíva)" }); continue; }
+        if (gated && !wo) { rows.push({ sekcia: label, stav: "v poriadku", klikacich: 0, nalez: "zamknuté (v RPG do meštianskeho práva, inak do roku 1405 alebo titulu)" }); continue; }
         errs.length = 0; const found = [];
         try { A.p3dBook(view); await wait(150); if (extra) { S.ttab = extra.ttab || ""; S.rodSec = extra.rodSec || ""; render(); } } catch (e) { errs.push(String(e)); }
         await wait(1000);
         for (const m of errs) found.push("chyba: " + m.slice(0, 160));
         if (!document.body.classList.contains("p3d-book")) found.push("chyba: kniha sa zavrela" + (document.querySelector(".toast") ? " (" + document.querySelector(".toast").textContent.slice(0, 80) + ")" : ""));
         else page(found);
-        const on = document.querySelector("#p3dbookn .on"); if (on && on.dataset.bv !== view) found.push(`zvýraznená je záložka ${on.dataset.bv}`);
         rows.push({ sekcia: label, stav: stav(found), klikacich: document.querySelectorAll("#dside button,#dside [data-a]").length, nalez: found.join(" · ") });
       }
       try { A.p3dBook("dielne"); await wait(300); A.p3dBook(null); } catch (e) { } await wait(400);
       if (document.body.classList.contains("p3d-book")) rows.push({ sekcia: "kniha: zavretie", stav: "pozor", nalez: "kniha sa nezavrela" });
       if (typeof A !== "undefined" && !/[?&]bez3d\b/.test(location.search)) { for (const r of await check3d(errs)) rows.push(r); }
     } finally {
-      console.error = ce; console.warn = cw; removeEventListener("error", onErr); removeEventListener("unhandledrejection", onErr);
+      console.error = ce; console.warn = cw; window.__kontrola = 0; removeEventListener("error", onErr); removeEventListener("unhandledrejection", onErr);
       try { A.p3dBook(null); S.view = keep.view; S.ttab = keep.ttab; S.rodSec = keep.rodSec; S.tut3 = keep.tut3; S.guideOff = keep.guideOff; render(); } catch (e) { }
       await wait(300);
       try { for (const k in ls) localStorage.setItem(k, ls[k]); } catch (e) { }

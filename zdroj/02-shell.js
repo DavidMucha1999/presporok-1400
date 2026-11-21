@@ -54,11 +54,11 @@
     var look = Object.assign({}, START.look, { g: START.gender });
     var por = "";
     try { por = portrait(look, 22, { body: "b0" }, START.arms.f, 118); } catch (e) { }
-    return '<aside class="np" aria-label="Náhľad rodu"><div class="np-in"><p class="lbl">náhľad rodu</p>' +
-      '<div class="np-fig"><div class="np-por">' + por + '</div><div class="np-arms">' + shield(0, 88, START.arms) + "</div></div>" +
+    return '<aside class="np" aria-label="Náhľad postavy"><div class="np-in"><p class="lbl">náhľad postavy</p>' +
+      '<div class="np-fig"><div class="np-por">' + por + '</div></div>' +
       '<h3 id="np-name">' + H(START.first || "Ján") + " " + H(START.name || "Bielik") + "</h3>" +
-      '<p class="np-cls">' + H(cn) + " · " + (START.gender === "f" ? "žena" : "muž") + " · rok 1400</p>" +
-      '<div class="np-seal" aria-hidden="true">R</div></div></aside>';
+      '<p class="np-cls">' + (START.gender === "f" ? "Sedliačka" : "Sedliak") + " · " + (START.gender === "f" ? "žena" : "muž") + " · rok 1400</p>" +
+      '</div></aside>';
   }
   function newHTML() {
     var s = origStart();

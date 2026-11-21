@@ -450,7 +450,7 @@ function mmLayout(){const mm=q(".mainmenu");let on=false;try{on=!!mm&&!q(".newro
 
 /* ---------- založenie rodu: panoráma, maliarsky stojan s náhľadom rodu a formulár v krokoch ---------- */
 let nrs="rod";
-const NRS=[["rod","1 · Rod"],["erb","2 · Erb"],["vzhlad","3 · Vzhľad"],["pov","4 · Povolanie"],["zac","5 · Začiatok"],["ulozene","Uložené rody"]];
+const NRS=[["rod","1 · Meno"],["vzhlad","2 · Vzhľad"],["zac","3 · Začiatok"],["ulozene","Uložené hry"]];/* RPG (v361): erb a povolanie sa pri založení nevyberajú */
 const nrGroup=l=>{l=(l||"").toLowerCase();return l.startsWith("erb")?"erb":l.startsWith("vzhľad")?"vzhlad":l.startsWith("povolanie")?"pov":"zac"};
 function nrApply(){const sd=document.getElementById("dside");if(!sd||!sd.classList.contains("nr"))return;
  sd.querySelectorAll(".dstabs [data-nrs]").forEach(b=>{const on=b.dataset.nrs===nrs;b.classList.toggle("on",on);b.setAttribute("aria-selected",String(on))});
@@ -468,7 +468,7 @@ function nrLayout(){const nr=q(".newrod");let on=false;try{on=!!nr&&desk()&&hbPr
  sd.className="wide nr";sd.setAttribute("aria-label","Založenie rodu");
  const sheets=[...document.querySelectorAll(".newrod .sheet")];const form=sheets.find(s=>/Nový rod/.test(txt(s.querySelector("h2"))));const saved=sheets.find(s=>s!==form&&/Pokračovať/.test(txt(s.querySelector("h2"))));
  const tabs=NRS.filter(x=>x[0]!=="ulozene"||saved);if(!tabs.some(x=>x[0]===nrs))nrs="rod";
- sd.innerHTML=`<div class="dshead"><h2>Založenie rodu</h2><span><button type="button" class="btn sm" data-a="menuBack">‹ Späť do menu</button></span></div><div class="dstabs" role="tablist">${tabs.map(([k,n])=>`<button type="button" role="tab" data-nrs="${k}">${n}</button>`).join("")}</div><div class="dsbody nrbody"></div><div class="nrfoot"><button type="button" class="btn" data-nrnext="erb">Ďalej ›</button></div>`;
+ sd.innerHTML=`<div class="dshead"><h2>Nová postava</h2><span><button type="button" class="btn sm" data-a="menuBack">‹ Späť do menu</button></span></div><div class="dstabs" role="tablist">${tabs.map(([k,n])=>`<button type="button" role="tab" data-nrs="${k}">${n}</button>`).join("")}</div><div class="dsbody nrbody"></div><div class="nrfoot"><button type="button" class="btn" data-nrnext="erb">Ďalej ›</button></div>`;
  const body=sd.querySelector(".nrbody");if(form){form.classList.add("nrform");body.appendChild(form);const br=form.querySelector('[data-a="begin"]');const row=br&&br.closest(".row");if(row)sd.querySelector(".nrfoot").appendChild(br)}
  if(saved){saved.classList.add("nrsaved");body.appendChild(saved)}
  nrApply()}
